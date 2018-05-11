@@ -403,6 +403,8 @@ export default {
   word-wrap: break-word;
   user-select: text;
   cursor: auto;
+  max-width: 100%;
+  line-height: 16px;
 }
 .mu-item-after {
   margin-right: 12px !important;
