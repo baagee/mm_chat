@@ -70,7 +70,10 @@
           <div style='font-size:12px;color:rgba(0,0,0,.54);text-align:right;margin-bottom:3px' v-if="chat.self">[{{chat.time}}] {{chat.nickname}}</div>
           <div style='font-size:12px;color:rgba(0,0,0,.54);margin-bottom:3px' v-else>{{chat.nickname}} [{{chat.time}}]</div>
                     <span class="content" @click="chat.type=='str'?'':showBigImg(chat.message)" style="color: rgba(0, 0, 0, .9);word-wrap: break-word;" 
-                    :style="!chat.self?'font-size:14px;':'float: right;'" v-html="chat.type=='str'?chat.message:'<img style=\'max-width:300px\' src=\''+chat.message+'\'>'">
+                    :style="!chat.self?'font-size:14px;':'float: right;'" 
+                    v-html="chat.type=='str'?chat.message:createImgTag(chat.message)">
+                    <!-- chat.type=='str'?chat.message:'<img style=\'max-width:300px\' src=\''+chat.message+'\'  onload=\'this.src=\'/static/assets/loading.gif\'\' onerror=\'this.src=\'/static/assets/loading.gif\'\'>' -->
+                    <!--  onerror="this.src='error.jpg" -->
                     </span>
         </span>
       </mu-list-item>
@@ -134,6 +137,7 @@
 <script>
 import { mapState } from "vuex";
 import Tools from "./Tools";
+import { Indicator } from "mint-ui";
 export default {
   name: "App",
   data() {
@@ -157,50 +161,63 @@ export default {
     showBigImg(img_path) {
       (this.show_img = true), (this.big_img = img_path);
     },
+    createImgTag(src){
+      // var loading='/static/assets/loading.gif';
+      var error='/static/assets/error.png';
+      var tag="<img style='max-width:300px' src='"+src+"' onerror=\"this.src='"+error+"'\">"
+      //  onload=\"this.src='"+loading+"'\" 
+      return tag
+    },
     // 上传图片
     uploadImage(e) {
+      let file = e.target.files[0];
+      let param = new FormData(); // 创建form对象
+      param.append("image", file, file.name); // 通过append向form对象添加数据
+      console.log(param.get("file")); // FormData私有类对象，访问不到，可以通过get判断值是否传进去
+      let config = {
+        headers: { "Content-Type": "multipart/form-data" }
+      };
+
       var that = this;
-      var file = e.target.files[0];
+      // var file = e.target.files[0];
       var imgSize = file.size / 1024;
-      if (imgSize > 1024*2) {
+      if (imgSize > 1024 * 5) {
         this.alert_open = true;
-        this.alert_msg = "请不要上传大于2Mb的图片";
+        this.alert_msg = "请不要上传大于5Mb的图片";
       } else {
-        var reader = new FileReader();
-        reader.readAsDataURL(file); // 读出 base64
-        reader.onloadend = () => {
-          // 图片的 base64 格式, 可以直接当成 img 的 src 属性值
-          var base64Data = reader.result;
-          var sendData = {
-            img: base64Data
-          };
-          this.$axios
-            .post("/upload.php", this.$qs.stringify(sendData))
-            .then(response => {
-              console.log(response);
-              if (response.data.res == true) {
-                // 上传成功 发送socket
-                var send = {
-                  action: "chat",
-                  nickname: this.myself.info.nickname,
-                  message: "[img]:" + response.data.img_path,
-                  avatar_id: this.mt_rand,
-                  // 如果to 目标用户数组为空，则在线所有人都能接受
-                  to: this.unique_array(this.to)
-                };
-                this.$socket.send(JSON.stringify(send));
-                this.message = "";
-                this.to = [];
-              } else {
-                this.alert_open = true;
-                this.alert_msg = response.data.err_msg;
-              }
-            })
-            .catch(error => {
-              console.log(error);
-              alert("抱歉，出现未知错误");
-            });
-        };
+        Indicator.open({
+          text: "上传中...",
+          spinnerType: "fading-circle"
+        });
+        this.$axios
+          .post("/upload.php", param, config)
+          .then(response => {
+            console.log(response);
+            if (response.data.res == true) {
+              Indicator.close();
+              // 上传成功 发送socket
+              var send = {
+                action: "chat",
+                nickname: this.myself.info.nickname,
+                message: "[img]:" + response.data.img_path,
+                avatar_id: this.mt_rand,
+                // 如果to 目标用户数组为空，则在线所有人都能接受
+                to: this.unique_array(this.to)
+              };
+              this.$socket.send(JSON.stringify(send));
+              this.message = "";
+              this.to = [];
+            } else {
+              Indicator.close();
+              this.alert_open = true;
+              this.alert_msg = response.data.err_msg;
+            }
+          })
+          .catch(error => {
+            Indicator.close();
+            console.log(error);
+            alert("抱歉，出现未知错误");
+          });
       }
     },
     login_handle() {
@@ -251,7 +268,7 @@ export default {
       if (id == this.myself.info.user_id) {
         return false;
       }
-      if(this.to.indexOf(id)!==-1){
+      if (this.to.indexOf(id) !== -1) {
         return false;
       }
       var user = this.online_users.filter(user => {
