@@ -70,7 +70,7 @@
           <div style='font-size:12px;color:rgba(0,0,0,.54);text-align:right;margin-bottom:3px' v-if="chat.self">[{{chat.time}}] {{chat.nickname}}</div>
           <div style='font-size:12px;color:rgba(0,0,0,.54);margin-bottom:3px' v-else>{{chat.nickname}} [{{chat.time}}]</div>
                     <span class="content" @click="chat.type=='str'?'':showBigImg(chat.message)" style="color: rgba(0, 0, 0, .9);word-wrap: break-word;" 
-                    :style="!chat.self?'font-size:14px;':''" v-html="chat.type=='str'?chat.message:'<img style=\'max-width:300px\' src=\''+chat.message+'\'>'">
+                    :style="!chat.self?'font-size:14px;':'float: right;'" v-html="chat.type=='str'?chat.message:'<img style=\'max-width:300px\' src=\''+chat.message+'\'>'">
                     </span>
         </span>
       </mu-list-item>
