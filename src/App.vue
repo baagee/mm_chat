@@ -3,7 +3,7 @@
 
     <mu-dialog :open="alert_open" title="提示">
       {{alert_msg}}
-    <mu-flat-button label="确定" slot="actions" primary @click="alert_close()"/>
+    <mu-flat-button label="确定" slot="actions" primary @click="alertClose()"/>
   </mu-dialog>
 
   <!-- 图片放大 -->
@@ -14,7 +14,7 @@
 <div class="login_box" v-if="!is_login">
 <div style="padding-top:8%;">
   <h1 style='color:#7e57c2'>在线聊天室</h1>
-  <img :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="250px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="change_avatar()" title="点击头像更换头像哦">
+  <img :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="250px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="changeAvatar()" title="点击头像更换头像哦">
 </div>
 <div style="margin-top:3%">
   <mu-text-field label="输入昵称" labelFloat v-model="my_nickname"/>
@@ -35,22 +35,23 @@
 
 
 <mu-row gutter>
-    <mu-col width="100" tablet="40" desktop="30"  style="    position: absolute;height: 100%;padding-bottom: 105px;">
+    <mu-col width="100" tablet="40" desktop="30"  style="position: absolute;height: 100%;padding-bottom: 105px;">
       <div style="width:100%">
-        <input type="text" v-model="search_keywoyds" placeholder="搜索在线用户" style="    width: 100%;
+        <input type="text" v-model="search_keywoyds" placeholder="搜索在线用户" style="
+        width: 100%;
     height: 35px;
     margin: 3px 0;
     border: 1px solid #f1f1f1;
     padding-left: 10px;">
       </div>
 
-      <div style="    background-color: rgb(241, 241, 241);
+      <div style="background-color: rgb(241, 241, 241);
     height: 100%;
     overflow-y: auto;">
           <mu-list>
-    <mu-list-item style="    border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+    <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
       <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chat_this(user.user_id)"/>
+      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id)"/>
     </mu-list-item>
   </mu-list>
       </div>
@@ -72,13 +73,11 @@
                     <span class="content" @click="chat.type=='str'?'':showBigImg(chat.message)" style="color: rgba(0, 0, 0, .9);word-wrap: break-word;" 
                     :style="!chat.self?'font-size:14px;':'float: right;'" 
                     v-html="chat.type=='str'?chat.message:createImgTag(chat.message)">
-                    <!-- chat.type=='str'?chat.message:'<img style=\'max-width:300px\' src=\''+chat.message+'\'  onload=\'this.src=\'/static/assets/loading.gif\'\' onerror=\'this.src=\'/static/assets/loading.gif\'\'>' -->
-                    <!--  onerror="this.src='error.jpg" -->
                     </span>
         </span>
       </mu-list-item>
       </div>
-<div class="message_input" style="width: 100%;    position: absolute;
+<div class="message_input" style="width: 100%;position: absolute;
     bottom: 4px;">
     <!-- emoji -->
     <div style="
@@ -92,7 +91,7 @@
     overflow-y: auto;
     " v-show="show_emoji">
     
-<span class="emoji_box" v-for="i in 213" :key="i" @click="add_emoji('[emoji_'+i+']')">
+<span class="emoji_box" v-for="i in 213" :key="i" @click="addEmoji('[emoji_'+i+']')">
   <img :src="'/static/assets/emoji/1 ('+i+').gif'" alt="">
 </span>
     </div>
@@ -122,9 +121,8 @@
     cursor:pointer;
     right:0;" @click.stop="show_emoji=!show_emoji"/>
 
-  <mu-text-field multiLine :rows="3" :rowsMax="3" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;" v-model="message" @keyup.enter="send_message()"/>
-  <mu-raised-button label="发送消息" class="demo-raised-button" @click="send_message()" primary style="    bottom: 61px;
-  float:right;"/>
+  <mu-text-field multiLine :rows="3" :rowsMax="3" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;" v-model="message"/>
+  <mu-raised-button label="发送消息" class="demo-raised-button" @click="sendMessage()" primary style="bottom: 61px;float:right;"/>
 </div>
 
     </mu-col>
@@ -136,17 +134,14 @@
 
 <script>
 import { mapState } from "vuex";
-import Tools from "./Tools";
 import { Indicator } from "mint-ui";
 export default {
   name: "App",
   data() {
     return {
-      // online_users: ,
       message: "",
       to: [],
       search_keywoyds: "",
-      isLogin: false,
       alert_open: false,
       alert_msg: "",
       my_nickname: "",
@@ -159,8 +154,10 @@ export default {
   methods: {
     // 显示大图
     showBigImg(img_path) {
-      (this.show_img = true), (this.big_img = img_path);
+      this.show_img = true
+      this.big_img = img_path;
     },
+
     createImgTag(src){
       // var loading='/static/assets/loading.gif';
       var error='/static/assets/error.png';
@@ -202,7 +199,7 @@ export default {
                 message: "[img]:" + response.data.img_path,
                 avatar_id: this.mt_rand,
                 // 如果to 目标用户数组为空，则在线所有人都能接受
-                to: this.unique_array(this.to)
+                to: this.uniqueArray(this.to)
               };
               this.$socket.send(JSON.stringify(send));
               this.message = "";
@@ -220,7 +217,7 @@ export default {
           });
       }
     },
-    login_handle() {
+    loginHandle() {
       /*
       0        CONNECTING        连接尚未建立
     1        OPEN            WebSocket的链接已经建立
@@ -242,15 +239,15 @@ export default {
       }
     },
     // 关闭弹框提示
-    alert_close() {
+    alertClose() {
       this.alert_open = false;
     },
     // 选择表情
-    add_emoji(key) {
+    addEmoji(key) {
       this.message += key + " ";
     },
     // 数组去重
-    unique_array(array) {
+    uniqueArray(array) {
       if (array.length == 0) {
         return [];
       }
@@ -264,7 +261,7 @@ export default {
       return re;
     },
     // 和这个人聊天
-    chat_this(id) {
+    chatThis(id) {
       if (id == this.myself.info.user_id) {
         return false;
       }
@@ -282,7 +279,7 @@ export default {
       }
     },
     // 发送消息
-    send_message() {
+    sendMessage() {
       console.log(this.to);
       var send = {
         action: "chat",
@@ -290,7 +287,7 @@ export default {
         message: this.message,
         avatar_id: this.mt_rand,
         // 如果to 目标用户数组为空，则在线所有人都能接受
-        to: this.unique_array(this.to)
+        to: this.uniqueArray(this.to)
       };
       if (this.$socket.readyState == 1) {
         console.log("发送消息：" + send);
@@ -328,7 +325,7 @@ export default {
         // 昵称合法，保存本地缓存
         localStorage.setItem("my_nickname", this.my_nickname);
         // 发送socket登录
-        this.login_handle();
+        this.loginHandle();
       } else {
         // 昵称太长
         this.alert_open = true;
@@ -339,13 +336,12 @@ export default {
     logout() {
       this.$socket.close();
       localStorage.removeItem("my_nickname");
-      this.isLogin = false;
       this.my_nickname = "";
       this.mt_rand = 1;
       location.reload();
     },
     // 改变头像
-    change_avatar() {
+    changeAvatar() {
       this.mt_rand = parseInt(Math.random() * 258) + 1;
       localStorage.setItem("mt_rand", this.mt_rand);
     }
