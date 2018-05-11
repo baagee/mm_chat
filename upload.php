@@ -85,6 +85,7 @@ class FileUpload{
     	}
     }
 }
+ini_set('date.timezone','Asia/Shanghai');
 
 // 上传文件保存的文件夹名称
 $upload_dir='images';

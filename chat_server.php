@@ -231,6 +231,6 @@ $conf = [
         'port' => 8989
     ]
 ];
-
+ini_set('date.timezone','Asia/Shanghai');
 $chat_server = new ChatServer($conf);
 $chat_server->run();

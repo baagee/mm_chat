@@ -62,6 +62,7 @@
     height: 100%;padding-bottom: 155px;">
       <div class="message_box" id="message_content" style="
     overflow-y: auto;
+        background-color: #f1f1f1;
     border: 1px solid #f1f1f1;height:100%;">
     
 
@@ -70,7 +71,7 @@
         <span :slot="chat.self ? 'after':'title'" style="width:100%">
           <div style='font-size:12px;color:rgba(0,0,0,.54);text-align:right;margin-bottom:3px' v-if="chat.self">[{{chat.time}}] {{chat.nickname}}</div>
           <div style='font-size:12px;color:rgba(0,0,0,.54);margin-bottom:3px' v-else>{{chat.nickname}} [{{chat.time}}]</div>
-                    <span class="content" @click="chat.type=='str'?'':showBigImg(chat.message)" style="color: rgba(0, 0, 0, .9);word-wrap: break-word;" 
+                    <span class="content" @click="chat.type=='str'?'':showBigImg(chat.message)"
                     :style="!chat.self?'font-size:14px;':'float: right;'" 
                     v-html="chat.type=='str'?chat.message:createImgTag(chat.message)">
                     </span>
@@ -154,16 +155,21 @@ export default {
   methods: {
     // 显示大图
     showBigImg(img_path) {
-      this.show_img = true
+      this.show_img = true;
       this.big_img = img_path;
     },
 
-    createImgTag(src){
+    createImgTag(src) {
       // var loading='/static/assets/loading.gif';
-      var error='/static/assets/error.png';
-      var tag="<img style='max-width:300px' src='"+src+"' onerror=\"this.src='"+error+"'\">"
-      //  onload=\"this.src='"+loading+"'\" 
-      return tag
+      var error = "/static/assets/error.png";
+      var tag =
+        "<img style='max-width:300px' src='" +
+        src +
+        "' onerror=\"this.src='" +
+        error +
+        "'\">";
+      //  onload=\"this.src='"+loading+"'\"
+      return tag;
     },
     // 上传图片
     uploadImage(e) {
@@ -393,6 +399,10 @@ export default {
   display: inline-block;
   padding: 10px;
   background: #fff;
+  color: rgb(0, 0, 0);
+  word-wrap: break-word;
+  user-select: text;
+  cursor: auto;
 }
 .mu-item-after {
   margin-right: 12px !important;
