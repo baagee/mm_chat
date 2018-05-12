@@ -25,7 +25,7 @@
 
 
 
-<mu-appbar title="秋名山" v-show="is_login">
+<mu-appbar title="秋名山-请不要酒后开车" v-show="is_login">
   <span slot="right" style="margin-right:10px">{{my_nickname}}</span>
       <mu-avatar :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" slot="right" />
   <mu-icon-menu slot="right" icon="more_vert">
