@@ -159,6 +159,8 @@ class ChatServer
                 $this->batchSendMessage($this->web_socket->connections, $send, $fd);
             } else {
 //            给指定的人发送
+                $return['message']['at_you'] = true;
+                $send = json_encode($return, JSON_UNESCAPED_UNICODE);
                 echo '给指定的人发送' . PHP_EOL;
                 $this->batchSendMessage($to, $send, $fd);
             }
@@ -231,6 +233,7 @@ $conf = [
         'port' => 8989
     ]
 ];
+
 ini_set('date.timezone','Asia/Shanghai');
 $chat_server = new ChatServer($conf);
 $chat_server->run();

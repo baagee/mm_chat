@@ -95,12 +95,23 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
             return true;
           }
         });
-        Toast('网友:' + store.state.online_users[index].nickname + ' 下线');
-        store.state.online_users.splice(index, 1);
+        if(index!==-1){
+          Toast('网友:' + store.state.online_users[index].nickname + ' 下线');
+          store.state.online_users.splice(index, 1);
+        }
       } else if (getMsg.action == 'user_online') {
         // 有人上线
-        store.commit("add_online_user", getMsg.user_info);
-        Toast('新网友:' + getMsg.user_info.nickname + ' 上线');
+        var index = store.state.online_users.findIndex(user => {
+          if (user.user_id == getMsg.user_id) {
+            return true;
+          }
+        });
+        if(index===-1){
+          store.commit("add_online_user", getMsg.user_info);
+          Toast('新网友:' + getMsg.user_info.nickname + ' 上线');
+        }else{
+          console.log('此user_id已经在列表里了')
+        }
       } else if (getMsg.action = 'chat') {
         // 收到消息
         if (getMsg.message.message.indexOf('[img]:.') === 0) {
@@ -111,6 +122,9 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           getMsg.message.type = 'str'
           // 解析表情
           getMsg.message.message = Tools.convert(getMsg.message.message)
+        }
+        if('at_you' in getMsg.message){
+          Tools.notice(getMsg.message.nickname+' 给你发了一条消息，注意查看哦^_^','/static/assets/avatar/1 ('+getMsg.message.avatar_id+').jpg');
         }
         store.commit("add_chat_msg", getMsg.message);
       }

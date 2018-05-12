@@ -28,9 +28,14 @@
 <mu-appbar title="秋名山-请不要酒后开车" v-show="is_login">
   <span slot="right" style="margin-right:10px">{{my_nickname}}</span>
       <mu-avatar :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" slot="right" />
-  <mu-icon-menu slot="right" icon="more_vert">
-      <mu-menu-item title="退出" @click="logout()"/>
-    </mu-icon-menu>
+
+  <mu-icon-menu slot="right" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'top'}"
+      :targetOrigin="{horizontal: 'right', vertical: 'top'}">
+    <!-- <mu-menu-item title="设置" leftIcon="settings" /> -->
+    <!-- <mu-menu-item title="帮助" leftIcon="help_outline"/>
+    <mu-divider /> -->
+    <mu-menu-item title="退出" leftIcon="power_settings_new" @click="logout()"/>
+  </mu-icon-menu>
 </mu-appbar>
 
 
@@ -51,7 +56,7 @@
           <mu-list>
     <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
       <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id)"/>
+      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id)" title="点击@我哦"/>
     </mu-list-item>
   </mu-list>
       </div>
@@ -122,7 +127,7 @@
     cursor:pointer;
     right:0;" @click.stop="show_emoji=!show_emoji"/>
 
-  <mu-text-field multiLine :rows="3" :rowsMax="3" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;" v-model="message" @keyup.native.ctrl.enter="sendMessage()"/>
+  <mu-text-field multiLine :rows="3" :rowsMax="3" hintText="请输入消息，记得按ctrl+enter快捷键发送哦" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;padding-left: 5px;" v-model="message" @keyup.native.ctrl.enter="sendMessage()"/>
   <mu-raised-button label="发送消息" class="demo-raised-button" @click="sendMessage()" primary style="bottom: 61px;float:right;"/>
 </div>
 
@@ -266,8 +271,8 @@ export default {
       }
       return re;
     },
-    test11(){
-      alert(222)
+    test11() {
+      alert(222);
     },
     // 和这个人聊天
     chatThis(id) {
