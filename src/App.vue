@@ -122,7 +122,7 @@
     cursor:pointer;
     right:0;" @click.stop="show_emoji=!show_emoji"/>
 
-  <mu-text-field multiLine :rows="3" :rowsMax="3" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;" v-model="message"/>
+  <mu-text-field multiLine :rows="3" :rowsMax="3" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;" v-model="message" @keyup.native.ctrl.enter="sendMessage()"/>
   <mu-raised-button label="发送消息" class="demo-raised-button" @click="sendMessage()" primary style="bottom: 61px;float:right;"/>
 </div>
 
@@ -265,6 +265,9 @@ export default {
         }
       }
       return re;
+    },
+    test11(){
+      alert(222)
     },
     // 和这个人聊天
     chatThis(id) {
