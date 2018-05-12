@@ -14,9 +14,7 @@
 <div class="login_box" v-if="!is_login">
 <div style="padding-top:8%;">
   <h1 style='color:#7e57c2'>秋名山</h1>
-  <h4>请选择头像</h4>
-  <!-- <img :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="changeAvatar()" title="点击头像更换头像哦">
-  <br> -->
+  <h3 style="color: #9e9e9e;">请选择头像</h3>
   <div ref="header_select_box" style="
   height: 200px;
   overflow: auto;
@@ -114,7 +112,7 @@
     height: 175px;
     overflow-y: auto;
     " v-show="show_emoji">
-<span v-if="is_login" class="emoji_box" v-for="i in 579" :key="i" @click="addEmoji('[emoji_'+i+']')">
+<span v-if="is_login" class="emoji_box" v-for="i in 576" :key="i" @click="addEmoji('[emoji_'+i+']')">
   <img :src="'/static/assets/emoji/1 ('+i+').gif'" alt="">
 </span>
     </div>
@@ -158,6 +156,7 @@
 <script>
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
+import { Toast } from 'mint-ui';
 export default {
   name: "App",
   data() {
@@ -391,7 +390,8 @@ export default {
     // 改变头像
     selectThisAvatar(avatar_id){
       localStorage.setItem("mt_rand", avatar_id);
-      this.mt_rand=avatar_id
+      this.mt_rand=avatar_id;
+      Toast('头像选择成功')
     }
   },
   computed: {
