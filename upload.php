@@ -62,7 +62,7 @@ class FileUpload{
 	            switch ($_FILES[$this->upload_type]['error']) {
 	                case 1 :
 	                case 2 :
-	                	throw new Exception('上传文件过大，max='.ini_get('upload_max_filesize'));
+	                	throw new Exception('上传文件过大');
 	                case 3 :
 	                	throw new Exception("上传文件丢失");
 	                case 4 :

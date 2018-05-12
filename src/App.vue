@@ -13,7 +13,7 @@
 
 <div class="login_box" v-if="!is_login">
 <div style="padding-top:8%;">
-  <h1 style='color:#7e57c2'>在线聊天室</h1>
+  <h1 style='color:#7e57c2'>秋名山</h1>
   <img :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="250px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="changeAvatar()" title="点击头像更换头像哦">
 </div>
 <div style="margin-top:3%">
@@ -25,7 +25,7 @@
 
 
 
-<mu-appbar title="在线聊天室" v-show="is_login">
+<mu-appbar title="秋名山" v-show="is_login">
   <span slot="right" style="margin-right:10px">{{my_nickname}}</span>
       <mu-avatar :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" slot="right" />
   <mu-icon-menu slot="right" icon="more_vert">
