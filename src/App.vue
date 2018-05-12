@@ -14,7 +14,25 @@
 <div class="login_box" v-if="!is_login">
 <div style="padding-top:8%;">
   <h1 style='color:#7e57c2'>秋名山</h1>
-  <img :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="250px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="changeAvatar()" title="点击头像更换头像哦">
+  <h4>请选择头像</h4>
+  <!-- <img :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="changeAvatar()" title="点击头像更换头像哦">
+  <br> -->
+  <div ref="header_select_box" style="
+  height: 200px;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid #d9d9d9;
+  display:inline-block;
+">
+    <mu-list>
+    <template v-for="(item,index) in header_list">
+      <mu-list-item :key="index">
+        <img :src="'/static/assets/avatar/1 ('+item+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="selectThisAvatar(item)">
+      </mu-list-item>
+    </template>
+  </mu-list>
+  <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
+  </div>
 </div>
 <div style="margin-top:3%">
   <mu-text-field label="输入昵称" labelFloat v-model="my_nickname"/>
@@ -96,7 +114,7 @@
     height: 175px;
     overflow-y: auto;
     " v-show="show_emoji">
-<span v-if="is_login" v-show="emoji_tab_i==1" class="emoji_box" v-for="i in 579" :key="i" @click="addEmoji('[emoji_'+i+']')">
+<span v-if="is_login" class="emoji_box" v-for="i in 579" :key="i" @click="addEmoji('[emoji_'+i+']')">
   <img :src="'/static/assets/emoji/1 ('+i+').gif'" alt="">
 </span>
     </div>
@@ -143,7 +161,15 @@ import { Indicator } from "mint-ui";
 export default {
   name: "App",
   data() {
+    const header_list = [];
+    for (let i = 1; i <= 20; i++) {
+      header_list.push(i);
+    }
     return {
+      header_list,
+      header_num_s: 20,
+      header_loading: false,
+      scroller: null,
       message: "",
       to: [],
       search_keywoyds: "",
@@ -153,8 +179,7 @@ export default {
       mt_rand: 1,
       show_emoji: false,
       show_img: false,
-      big_img: "",
-      emoji_tab_i:1
+      big_img: ""
     };
   },
   methods: {
@@ -163,7 +188,19 @@ export default {
       this.show_img = true;
       this.big_img = img_path;
     },
-
+    loadMore() {
+      if(this.header_num_s>=260){
+        return false;
+      }
+      this.header_loading = true;
+      setTimeout(() => {
+        for (let i = this.header_num_s + 1; i <= this.header_num_s + 20; i++) {
+          this.header_list.push(i);
+        }
+        this.header_num_s += 20;
+        this.header_loading = false;
+      }, 500);
+    },
     createImgTag(src) {
       // var loading='/static/assets/loading.gif';
       var error = "/static/assets/error.png";
@@ -271,9 +308,6 @@ export default {
       }
       return re;
     },
-    test11() {
-      alert(222);
-    },
     // 和这个人聊天
     chatThis(id) {
       if (id == this.myself.info.user_id) {
@@ -355,9 +389,9 @@ export default {
       location.reload();
     },
     // 改变头像
-    changeAvatar() {
-      this.mt_rand = parseInt(Math.random() * 258) + 1;
-      localStorage.setItem("mt_rand", this.mt_rand);
+    selectThisAvatar(avatar_id){
+      localStorage.setItem("mt_rand", avatar_id);
+      this.mt_rand=avatar_id
     }
   },
   computed: {
@@ -367,6 +401,7 @@ export default {
     chat_list: "scrollToBottom"
   },
   mounted() {
+    this.scroller = this.$refs.header_select_box;
     var div = document.getElementById("message_content");
     div.scrollTop = div.scrollHeight;
     // 获取随机数
