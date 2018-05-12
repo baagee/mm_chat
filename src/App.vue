@@ -92,12 +92,11 @@
     width: 40%;
     right: 0px;
     background-color: #f3f3f3;
-    top: -150px;
-    height: 150px;
+    top: -175px;
+    height: 175px;
     overflow-y: auto;
     " v-show="show_emoji">
-    
-<span class="emoji_box" v-for="i in 213" :key="i" @click="addEmoji('[emoji_'+i+']')">
+<span v-if="is_login" v-show="emoji_tab_i==1" class="emoji_box" v-for="i in 579" :key="i" @click="addEmoji('[emoji_'+i+']')">
   <img :src="'/static/assets/emoji/1 ('+i+').gif'" alt="">
 </span>
     </div>
@@ -154,7 +153,8 @@ export default {
       mt_rand: 1,
       show_emoji: false,
       show_img: false,
-      big_img: ""
+      big_img: "",
+      emoji_tab_i:1
     };
   },
   methods: {
@@ -434,6 +434,7 @@ export default {
   float: left;
   width: 25px;
   height: 25px;
+  overflow: hidden;
   cursor: pointer;
   border-bottom: 1px dotted #ccc;
   border-right: 1px dotted #ccc;
