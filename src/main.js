@@ -15,7 +15,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   document.write('<h1 style="text-align:center;margin-top:20%;color:red">请使用电脑访问，谢谢</h1>');
 } else {
   Vue.prototype.$qs = Qs
-  const BASE_URL = 'http://chat.baagee.vip'
+  const BASE_URL = 'http://192.168.117.142'
   Axios.defaults.baseURL = BASE_URL
   Axios.defaults.withCredentials = true
   Vue.prototype.$axios = Axios
@@ -50,7 +50,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
     }
   })
 
-  var ws = 'ws://chat.baagee.vip:8989'
+  var ws = 'ws://192.168.117.142:8989'
   var socket = new WebSocket(ws)
   socket.onopen = function (event) {
     console.log('连接成功')
