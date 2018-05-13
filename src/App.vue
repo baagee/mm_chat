@@ -20,17 +20,15 @@
   <div v-show="header_select_box" ref="header_select_box" style="
   height: 200px;
   overflow: auto;
+  width: 300px;
   -webkit-overflow-scrolling: touch;
   border: 1px solid #d9d9d9;
   display:inline-block;
 ">
-    <mu-list>
-    <template v-for="(item,index) in header_list">
-      <mu-list-item :key="index">
-        <img :src="'/static/assets/avatar/1 ('+item+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;" @click="selectThisAvatar(item)">
-      </mu-list-item>
-    </template>
-  </mu-list>
+<span class="one_header" v-for="(item,index) in header_list" :key="index">
+        <img :src="'/static/assets/avatar/1 ('+item+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;" @click="selectThisAvatar(item)">
+
+</span>
   <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
   </div>
         <img @click="header_select_box=true" v-show="!header_select_box" :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;" title="点击我选择头像哦">
@@ -345,7 +343,7 @@ export default {
         this.$socket.send(JSON.stringify(send));
         this.message = "";
         this.to = [];
-        this.at_map={};
+        this.at_map = {};
       } else {
         alert("网络连接失败，请刷新");
         return false;
@@ -493,5 +491,16 @@ export default {
   max-height: 80%;
   max-width: 75%;
   width: auto;
+}
+.one_header {
+  border: 1px solid #c6c6c6;
+  width: 86px;
+  height: 86px;
+  display: inline-block;
+  padding: 3px;
+  margin: 2px;
+}
+.one_header:hover {
+  background-color: rebeccapurple;
 }
 </style>
