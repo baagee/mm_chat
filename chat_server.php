@@ -12,6 +12,7 @@ class ChatServer
     const ACTION_LOGIN = 'login';
     const ACTION_USER_ONLINE = 'user_online';
     const ACTION_CHAT = 'chat';
+    const ACTION_HEART='heart';
     const REDIS_ONLINE_USERS_KEY = 'online_users';
 
     public function __construct($conf)
@@ -31,7 +32,6 @@ class ChatServer
      */
     public function run()
     {
-        $this->web_socket->on('workerStart', [$this, 'onWorkerStart']);
         $this->web_socket->on('open', [$this, 'onOpen']);
         $this->web_socket->on('message', [$this, 'onMessage']);
         $this->web_socket->on('close', [$this, 'onClose']);
@@ -73,48 +73,17 @@ class ChatServer
                 // 处理聊天
                 $this->chat($data['nickname'], $request->fd, $data['message'], $data['avatar_id'], $data['to']);
                 break;
+            case self::ACTION_HEART:
+                echo '心跳包'.PHP_EOL;
+                break;
         }
         echo 'on message over' . PHP_EOL;
-    }
-
-    public function onWorkerStart($ws, $worker_id)
-    {
-        if (!$this->web_socket->taskworker && $this->web_socket->worker_id == 0) {
-            $this->web_socket->tick(5000, function ($id) use ($ws) {
-                // 定时检测是否有僵尸用户
-                // 1 获取redis里面的在线用户
-                $online_users = $this->redis_cli->hGetAll(self::REDIS_ONLINE_USERS_KEY);
-                if (!empty($online_users)) {
-                    $online_users = array_values($online_users);
-                    foreach ($online_users as $user_json) {
-                        $user = json_decode($user_json, true);
-                        // 2 检测用户对应的fd是否有效，无效就为僵尸用户，删除下线，通知所有在线用户
-                        if ($this->web_socket->exist($user['user_id']) === false) {
-                            echo '[定时任务]：用户' . $user['nickname'] . '为僵尸用户，即将删除下线' . PHP_EOL;
-                            // 删除僵尸用户
-                            $this->publishOffline($user['user_id']);
-                        } else {
-                            echo '[定时任务]：用户' . $user['nickname'] . '在线' . PHP_EOL;
-                        }
-                    }
-                }
-            });
-        }
     }
 
     public function onClose($ws, $user_id)
     {
         $delete_user = json_decode($this->redis_cli->hGet(self::REDIS_ONLINE_USERS_KEY, 'user_' . $user_id), true);
         echo '用户：' . $delete_user['nickname'] . '下线' . PHP_EOL;
-        $this->publishOffline($user_id);
-    }
-
-    /**
-     * 删除redis在线用户，发布下线通知
-     * @param $user_id
-     */
-    private function publishOffline($user_id)
-    {
         // 删除redis在线用户
         $this->redis_cli->hDel(self::REDIS_ONLINE_USERS_KEY, 'user_' . $user_id);
         /*通知在线用户有人下线*/
@@ -263,6 +232,10 @@ class ChatServer
     private function createWebSocket($conf)
     {
         $web_socket = new swoole_websocket_server($conf['host'], $conf['port']);
+        $web_socket->set(array(
+            'heartbeat_check_interval' => 10,//10秒检查一次
+            'heartbeat_idle_time' => 10,//如果客户端在10秒没发送消息，就说明挂了，主动断开连接
+        ));
         echo 'web socket 已创建' . PHP_EOL;
         return $web_socket;
     }

@@ -15,9 +15,9 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   document.write('<h1 style="text-align:center;margin-top:20%;color:red">请使用电脑访问，谢谢</h1>');
 } else {
   Vue.prototype.$qs = Qs
-  const HOST='chat.baagee.vip'
+  const HOST = 'chat.baagee.vip'
   // const HOST='192.168.117.142'
-  const BASE_URL = 'http://'+HOST
+  const BASE_URL = 'http://' + HOST
   Axios.defaults.baseURL = BASE_URL
   Axios.defaults.withCredentials = true
   Vue.prototype.$axios = Axios
@@ -52,9 +52,19 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
     }
   })
 
-  var ws = 'ws://'+HOST+':8989'
+  var ws = 'ws://' + HOST + ':8989'
   var socket = new WebSocket(ws)
   socket.onopen = function (event) {
+    var interval=setInterval(function () {
+      // 定时发送心跳包
+      if (socket.readyState == 1) {
+        socket.send(JSON.stringify({
+          action: 'heart'
+        }))
+      }else{
+        clearInterval(interval)
+      }
+    }, 8000)
     console.log('连接成功')
     // 获取缓存昵称
     var my_nickname = localStorage.getItem("my_nickname");
@@ -97,7 +107,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
             return true;
           }
         });
-        if(index!==-1){
+        if (index !== -1) {
           Toast('网友:' + store.state.online_users[index].nickname + ' 下线');
           store.state.online_users.splice(index, 1);
         }
@@ -108,10 +118,10 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
             return true;
           }
         });
-        if(index===-1){
+        if (index === -1) {
           store.commit("add_online_user", getMsg.user_info);
           Toast('新网友:' + getMsg.user_info.nickname + ' 上线');
-        }else{
+        } else {
           console.log('此user_id已经在列表里了')
         }
       } else if (getMsg.action = 'chat') {
@@ -125,8 +135,8 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           // 解析表情
           getMsg.message.message = Tools.convert(getMsg.message.message)
         }
-        if('at_you' in getMsg.message){
-          Tools.notice(getMsg.message.nickname+' 给你发了一条消息，注意查看哦^_^','/static/assets/avatar/1 ('+getMsg.message.avatar_id+').jpg');
+        if ('at_you' in getMsg.message) {
+          Tools.notice(getMsg.message.nickname + ' 给你发了一条消息，注意查看哦^_^', '/static/assets/avatar/1 (' + getMsg.message.avatar_id + ').jpg');
         }
         store.commit("add_chat_msg", getMsg.message);
       }
