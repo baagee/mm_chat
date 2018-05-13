@@ -14,8 +14,10 @@
 <div class="login_box" v-if="!is_login">
 <div style="padding-top:8%;">
   <h1 style='color:#7e57c2'>秋名山</h1>
-  <h3 style="color: #9e9e9e;">请选择头像</h3>
-  <div ref="header_select_box" style="
+  <div style="
+  height: 200px;  
+  ">
+  <div v-show="header_select_box" ref="header_select_box" style="
   height: 200px;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
@@ -31,9 +33,12 @@
   </mu-list>
   <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
   </div>
+        <img @click="header_select_box=true" v-show="!header_select_box" :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;" title="点击我选择头像哦">
+  </div>
 </div>
+
 <div style="margin-top:3%">
-  <mu-text-field label="输入昵称" labelFloat v-model="my_nickname"/>
+  <mu-text-field label="输入昵称" labelFloat v-model="my_nickname" @keyup.native.enter="login()"/>
   <br>
   <mu-raised-button label="开始聊天" class="demo-raised-button" primary @click="login()"/>
 </div>
@@ -178,7 +183,8 @@ export default {
       mt_rand: 1,
       show_emoji: false,
       show_img: false,
-      big_img: ""
+      big_img: "",
+      header_select_box:false
     };
   },
   methods: {
@@ -391,7 +397,8 @@ export default {
     selectThisAvatar(avatar_id){
       localStorage.setItem("mt_rand", avatar_id);
       this.mt_rand=avatar_id;
-      Toast('头像选择成功')
+      Toast('头像选择成功');
+      this.header_select_box=false
     }
   },
   computed: {
@@ -408,7 +415,7 @@ export default {
     this.mt_rand = localStorage.getItem("mt_rand");
     if (this.mt_rand == null) {
       // 没有随机数 就生成
-      this.mt_rand = parseInt(Math.random() * 258) + 1;
+      this.mt_rand = parseInt(Math.random() * 259) + 1;
       localStorage.setItem("mt_rand", this.mt_rand);
     }
     // 获取缓存昵称
