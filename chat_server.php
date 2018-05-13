@@ -11,8 +11,9 @@ class ChatServer
 
     const ACTION_LOGIN = 'login';
     const ACTION_USER_ONLINE = 'user_online';
+    const ACTION_LOGOUT_OTHER = 'logout_other';
     const ACTION_CHAT = 'chat';
-    const ACTION_HEART='heart';
+    const ACTION_HEART = 'heart';
     const REDIS_ONLINE_USERS_KEY = 'online_users';
 
     public function __construct($conf)
@@ -74,7 +75,7 @@ class ChatServer
                 $this->chat($data['nickname'], $request->fd, $data['message'], $data['avatar_id'], $data['to']);
                 break;
             case self::ACTION_HEART:
-                echo '心跳包'.PHP_EOL;
+                echo '心跳包' . PHP_EOL;
                 break;
         }
         echo 'on message over' . PHP_EOL;
@@ -88,7 +89,7 @@ class ChatServer
         $this->redis_cli->hDel(self::REDIS_ONLINE_USERS_KEY, 'user_' . $user_id);
         /*通知在线用户有人下线*/
         $publish_user_logout = json_encode([
-            'action' => 'logout_other',
+            'action' => self::ACTION_LOGOUT_OTHER,
             'user_id' => $user_id
         ], JSON_UNESCAPED_UNICODE);
         $this->batchSendMessage($this->web_socket->connections, $publish_user_logout, $user_id);
@@ -104,7 +105,7 @@ class ChatServer
         ];
         $this->redis_cli->hSet(self::REDIS_ONLINE_USERS_KEY, 'user_' . $user_id, json_encode($user_data, JSON_UNESCAPED_UNICODE));
         $return = [
-            'action' => 'login',
+            'action' => self::ACTION_LOGIN,
             'res' => true,
             'myself' => [
                 'user_id' => $user_id,
@@ -121,7 +122,7 @@ class ChatServer
         echo '通知自己登陆成功:' . $return . PHP_EOL;
         /*给所有除了自己的在线用户发消息新用户上线*/
         $publish_user_online = json_encode([
-            'action' => 'user_online',
+            'action' => self::ACTION_USER_ONLINE,
             'user_info' => [
                 'nickname' => $nickname,
                 'user_id' => $user_id,
@@ -144,7 +145,7 @@ class ChatServer
         if (trim($message) !== '') {
             // 给自己发消息说发送成功
             $return = [
-                'action' => 'chat',
+                'action' => self::ACTION_CHAT,
                 'message' => [
                     'nickname' => $nickname,
                     'self' => true,
