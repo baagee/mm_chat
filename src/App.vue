@@ -73,11 +73,15 @@
     height: 100%;
     overflow-y: auto;">
           <mu-list>
-    <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
-      <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
-    </mu-list-item>
-  </mu-list>
+            <mu-list-item style="border-bottom:1px dotted #ccc;"  title="机器人-小希">
+              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+              <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'小希')" title="点击@我哦"/>
+            </mu-list-item>
+            <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+              <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+              <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
+            </mu-list-item>
+          </mu-list>
       </div>
   
     </mu-col>

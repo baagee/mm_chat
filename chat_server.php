@@ -16,6 +16,8 @@ class ChatServer
     const ACTION_HEART = 'heart';
     const REDIS_ONLINE_USERS_KEY = 'online_users';
 
+    const TULING_API_KEY = 'fc48aee50a9a46f888379777d133631b';
+
     public function __construct($conf)
     {
         try {
@@ -164,6 +166,11 @@ class ChatServer
                 echo '给除了自己的所有人发送消息' . PHP_EOL;
                 $this->batchSendMessage($this->web_socket->connections, $send, $fd);
             } else {
+                if (in_array(-1, $to)) {
+                    // 如果是给机器人发消息，通知大家
+                    $return['message']['self'] = false;
+                    $this->batchSendMessage($this->web_socket->connections, $send, $fd);
+                }
                 // 给指定的人发送
                 $return['message']['at_you'] = true;
                 $send = json_encode($return, JSON_UNESCAPED_UNICODE);
@@ -184,12 +191,49 @@ class ChatServer
     private function batchSendMessage($tos, $send_data, $user_id)
     {
         foreach ($tos as $fd) {
-            $res = $this->checkUserExist($fd);
-            if ($fd != $user_id && $res) {
-                echo '向用户 user_id=' . $fd . ' 发消息:' . $send_data . PHP_EOL;
-                $this->web_socket->push($fd, $send_data);
+            if ($fd == -1) {
+                echo '请求图灵api' . PHP_EOL;
+                $this->postRobot($send_data);
+            } else {
+                $res = $this->checkUserExist($fd);
+                if ($fd != $user_id && $res) {
+                    echo '向用户 user_id=' . $fd . ' 发消息:' . $send_data . PHP_EOL;
+                    $this->web_socket->push($fd, $send_data);
+                }
             }
         }
+    }
+    
+    private function postRobot($send_data)
+    {
+        $send_data = json_decode($send_data, true);
+        $message = str_replace('@小希 ', '', $send_data['message']['message']);
+        $apiURL = "http://www.tuling123.com/openapi/api?key=" . self::TULING_API_KEY . "&info=" . $message;
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $apiURL);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $file_contents = curl_exec($ch);
+        curl_close($ch);
+        $res = json_decode($file_contents, true);
+        echo '请求图灵机器人接口结果：' . PHP_EOL;
+        var_dump($res);
+        if ($res['code'][0] == 4) {
+            $robot_message = '机器人出错啦';
+        } else {
+            if ($res['code'] == 100000) {
+                $robot_message = $res['text'];
+            } else if ($res['code'] == 200000) {
+                $robot_message = $res['text'] . ', 链接地址：' . $res['url'];
+            } else {
+                $robot_message = '抱歉啊，这个我不懂哦^_^';
+            }
+        }
+        $send_data['message']['message'] = $robot_message;
+        $send_data['message']['nickname'] = '机器人-小希';
+        $send_data['message']['avatar_id'] = 261;
+        unset($send_data['message']['at_you']);
+        // 向所有人发送机器人结果
+        $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
     }
 
     /**
