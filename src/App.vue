@@ -77,7 +77,7 @@
           <mu-list>
     <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
       <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id)" title="点击@我哦"/>
+      <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
     </mu-list-item>
   </mu-list>
       </div>
@@ -161,7 +161,7 @@
 <script>
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
-import { Toast } from 'mint-ui';
+import { Toast } from "mint-ui";
 export default {
   name: "App",
   data() {
@@ -175,6 +175,7 @@ export default {
       header_loading: false,
       scroller: null,
       message: "",
+      at_map: {},
       to: [],
       search_keywoyds: "",
       alert_open: false,
@@ -184,7 +185,7 @@ export default {
       show_emoji: false,
       show_img: false,
       big_img: "",
-      header_select_box:false
+      header_select_box: false
     };
   },
   methods: {
@@ -194,7 +195,7 @@ export default {
       this.big_img = img_path;
     },
     loadMore() {
-      if(this.header_num_s>=260){
+      if (this.header_num_s >= 260) {
         return false;
       }
       this.header_loading = true;
@@ -314,26 +315,22 @@ export default {
       return re;
     },
     // 和这个人聊天
-    chatThis(id) {
+    chatThis(id, nickname) {
       if (id == this.myself.info.user_id) {
         return false;
       }
-      if (this.to.indexOf(id) !== -1) {
-        return false;
-      }
-      var user = this.online_users.filter(user => {
-        if (user.user_id == id) {
-          return user;
-        }
-      });
-      if (user.length > 0) {
-        this.message += "@" + user[0].nickname + " ";
-        this.to.push(id);
+      if (this.message.indexOf("@" + nickname) == -1) {
+        this.at_map["@" + nickname] = id;
+        this.message += "@" + nickname + " ";
       }
     },
     // 发送消息
     sendMessage() {
-      console.log(this.to);
+      for (var nickname in this.at_map) {
+        if (this.message.indexOf(nickname) !== -1) {
+          this.to.push(this.at_map[nickname]);
+        }
+      }
       var send = {
         action: "chat",
         nickname: this.myself.info.nickname,
@@ -348,6 +345,7 @@ export default {
         this.$socket.send(JSON.stringify(send));
         this.message = "";
         this.to = [];
+        this.at_map={};
       } else {
         alert("网络连接失败，请刷新");
         return false;
@@ -394,11 +392,11 @@ export default {
       location.reload();
     },
     // 改变头像
-    selectThisAvatar(avatar_id){
+    selectThisAvatar(avatar_id) {
       localStorage.setItem("mt_rand", avatar_id);
-      this.mt_rand=avatar_id;
-      Toast('头像选择成功');
-      this.header_select_box=false
+      this.mt_rand = avatar_id;
+      Toast("头像选择成功");
+      this.header_select_box = false;
     }
   },
   computed: {
