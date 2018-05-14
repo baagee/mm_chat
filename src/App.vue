@@ -376,6 +376,7 @@ export default {
         this.at_map["@" + nickname] = id;
         this.message += "@" + nickname + " ";
       }
+      document.getElementsByClassName('mu-text-field-textarea')[0].focus();
     },
     // 发送消息
     sendMessage() {
