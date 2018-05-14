@@ -11,6 +11,38 @@
     <img :src="big_img" style="width:100%">
   </mu-dialog>
 
+  <div v-if="show_help" class="login_box" style="text-align:left">
+<div>
+    <h3>1：关于发送消息的快捷键</h3>
+    <p>
+      你不能使用回车（enter）来发送，请使用ctrl+enter(回车)来发送，因为回车是输入框的换行，所以你只能用ctrl+enter快捷键来发送消息了
+    </p>
+    <hr>
+    <h3>2：关于@别人</h3>
+    <p>
+      <h4>2.1：@别人是什么功能？</h4>
+      当你@别人时相当于只给他自己发了消息（私聊），你没@的人是不会受到消息的，如果你谁都没@，则全部在线人员都能接受到你的消息。
+      <h4>2.2：如何@别人？</h4>
+      在左边的在线用户列表中，每个用户（除了你自己）右边有一个消息的图标，鼠标点击那个会在消息输入框自动加入@xxx，
+      <span style="color:red">但是如果你在输入框手动输入@某某是不会起到@的作用的，只有通过鼠标点击消息的标志才起作用</span>
+    </p>
+    <hr>
+    <h3>3：聊天机器人如何使用？</h3>
+    <p>
+      和@别人一样，你只需要@她就行啦，此时应该注意，你@机器人时所有在线人员都能看到你和机器人的聊天，和@某个用户不一样
+    </p>
+    <hr>
+    <h3>4：给@的人发送图片？</h3>
+    <p>
+      选择图片发送之前注意要先@某人，千万别发送，然后选择你要发的图片会自动发送的。如果你想只给某人发私密照，但是没有@他直接选择图片，那么全部人员都会看到哦。。
+    </p>
+</div>
+<br>
+<div style="text-align:center">
+      <mu-raised-button label="我了解啦" @click='show_help=false' primary/>
+    </div>
+  </div>
+
 <div class="login_box" v-if="!is_login">
 <div style="padding-top:8%;">
   <h1 style='color:#7e57c2'>秋名山</h1>
@@ -51,8 +83,8 @@
   <mu-icon-menu slot="right" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'top'}"
       :targetOrigin="{horizontal: 'right', vertical: 'top'}">
     <!-- <mu-menu-item title="设置" leftIcon="settings" /> -->
-    <!-- <mu-menu-item title="帮助" leftIcon="help_outline"/>
-    <mu-divider /> -->
+    <mu-menu-item title="帮助" leftIcon="help_outline" @click="show_help=true"/>
+    <mu-divider />
     <mu-menu-item title="退出" leftIcon="power_settings_new" @click="logout()"/>
   </mu-icon-menu>
 </mu-appbar>
@@ -149,7 +181,7 @@
     cursor:pointer;
     right:0;" @click.stop="show_emoji=!show_emoji"/>
 
-  <mu-text-field multiLine :rows="3" :rowsMax="3" hintText="请输入消息，记得按ctrl+enter快捷键发送哦" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;padding-left: 5px;" v-model="message" @keyup.native.ctrl.enter="sendMessage()"/>
+  <mu-text-field multiLine :rows="3" :rowsMax="3" hintText="请输入消息，记得按ctrl+enter快捷键发送哦" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;padding-left: 5px;" v-model="message" @keyup.native.17.13="sendMessage()"/>
   <mu-raised-button label="发送消息" class="demo-raised-button" @click="sendMessage()" primary style="bottom: 61px;float:right;"/>
 </div>
 
@@ -187,7 +219,8 @@ export default {
       show_emoji: false,
       show_img: false,
       big_img: "",
-      header_select_box: false
+      header_select_box: false,
+      show_help: false
     };
   },
   methods: {
@@ -196,13 +229,13 @@ export default {
       this.show_img = true;
       this.big_img = img_path;
     },
-    createResponseHtmlTag(chat){
-      if(chat.type==='text'){
-        var tag=chat.message;
-      }else if(chat.type=='url'){
-        var tag='<a target="_blank" href="'+chat.message+'">点击查看</a>';
-      }else if(chat.type=='img'){
-        var tag=this.createImgTag(chat.message);
+    createResponseHtmlTag(chat) {
+      if (chat.type === "text") {
+        var tag = chat.message;
+      } else if (chat.type == "url") {
+        var tag = '<a target="_blank" href="' + chat.message + '">点击查看</a>';
+      } else if (chat.type == "img") {
+        var tag = this.createImgTag(chat.message);
       }
       return tag;
     },
@@ -273,7 +306,7 @@ export default {
                 to: this.uniqueArray(this.to)
               };
               this.$socket.send(JSON.stringify(send));
-              send.message="[img]:" + response.data.img_path;              
+              send.message = "[img]:" + response.data.img_path;
               this.$socket.send(JSON.stringify(send));
               this.message = "";
               this.to = [];

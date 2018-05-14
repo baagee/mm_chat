@@ -17,4 +17,4 @@ npm run build
 # build for production and view the bundle analyzer report
 npm run build --report
 ```
-#### upload.php为文件上传接口，chat_server.php为提供websocket服务端的脚本，在php  cli模式下运行
+#### upload_api的upload.php为文件上传接口，chat_server文件夹的脚本为提供websocket服务端的脚本，在php cli模式下运行
