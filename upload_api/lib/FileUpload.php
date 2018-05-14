@@ -1,17 +1,10 @@
 <?php
-
-header('Access-Control-Allow-Origin:http://localhost:8080');
-header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
-header('Content-Type:application/json; charset=utf-8');
-header('Access-Control-Allow-Credentials:true');
-
 include __DIR__.'/qcloud/cos/Api.php';
-
 use qcloud\cos\Api;
 
 class FileUpload{
 
-    const PATH='./upload/';
+    const PATH='../upload/';
     private $max_size=5343800;
 
     private $upload_type='';
@@ -57,7 +50,7 @@ class FileUpload{
     }
 
     public function upload2Qcloud($tmp_file,$ext){
-        $new_file=self::PATH.$this->upload_dir.'/'.time().mt_rand().$ext;
+        // $new_file=self::PATH.$this->upload_dir.'/'.time().mt_rand().$ext;
         
         $src = $tmp_file;
         $day=date('Y-m-d');
@@ -99,7 +92,7 @@ class FileUpload{
 	            }
 	        }
 
-	    	$this->checkPath();
+	    	// $this->checkPath();
 	        $size=$_FILES[$this->upload_type]['size'];
 	        $this->checkSize($size);
 	        $tmp_name=$_FILES[$this->upload_type]['tmp_name'];
@@ -110,27 +103,4 @@ class FileUpload{
     		throw new Exception("上传文件失败#2");
     	}
     }
-}
-
-
-// 上传文件保存的文件夹名称
-$upload_dir='images';
-// 上传文件类型，就是表单名称
-$upload_type='image';
-
-$qc_config = array(
-    'app_id' => '',
-    'secret_id' => '',
-    'secret_key' => '',
-    'region' => 'bj',   // bucket所属地域：华北 'tj' 华东 'sh' 华南 'gz'
-    'timeout' => 60
-);
-$bucket = 'chat-room';
-
-try{
-	$fileUpload=new FileUpload($upload_dir,$upload_type,$bucket,$qc_config);
-	$res=$fileUpload->upload();
-	die(json_encode(['res'=>true,'img_path'=>$res],JSON_UNESCAPED_UNICODE));
-}catch(Exception $e){
-	die(json_encode(['res'=>false,'err_msg'=>$e->getMessage()],JSON_UNESCAPED_UNICODE));
 }

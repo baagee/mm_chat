@@ -15,13 +15,15 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   document.write('<h1 style="text-align:center;margin-top:20%;color:red">请使用电脑访问，谢谢</h1>');
 } else {
   Vue.prototype.$qs = Qs
+
   // 在这里配置你的服务器地址
   const HOST = 'chat.baagee.vip'
-  // const HOST='192.168.117.142'
+  // const HOST = '192.168.117.142'
   const BASE_URL = 'http://' + HOST
   Axios.defaults.baseURL = BASE_URL
   Axios.defaults.withCredentials = true
   Vue.prototype.$axios = Axios
+
 
   Vue.use(Vuex);
 
@@ -56,13 +58,13 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   var ws = 'ws://' + HOST + ':8989'
   var socket = new WebSocket(ws)
   socket.onopen = function (event) {
-    var interval=setInterval(function () {
+    var interval = setInterval(function () {
       // 定时发送心跳包
       if (socket.readyState == 1) {
         socket.send(JSON.stringify({
           action: 'heart'
         }))
-      }else{
+      } else {
         clearInterval(interval)
       }
     }, 8000)
@@ -132,16 +134,16 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           // var img_url = BASE_URL + getMsg.message.message.substring(7)
           var img_url = getMsg.message.message.substring(6)
           getMsg.message.message = img_url
-        } else if(getMsg.message.message.indexOf('[url]:') !== -1){
+        } else if (getMsg.message.message.indexOf('[url]:') !== -1) {
           getMsg.message.type = 'url';
           getMsg.message.message = getMsg.message.message.substring(6)
-        }else {
+        } else {
           getMsg.message.type = 'text'
           // 解析表情
           getMsg.message.message = Tools.convert(getMsg.message.message)
         }
-        if(getMsg.message.message.indexOf(store.state.myself.info.nickname) !== -1){
-          getMsg.message['at_you']=true;
+        if (getMsg.message.message.indexOf(store.state.myself.info.nickname) !== -1) {
+          getMsg.message['at_you'] = true;
         }
         if ('at_you' in getMsg.message) {
           Tools.notice(getMsg.message.nickname + ' 给你发了一条消息，注意查看哦^_^', '/static/assets/avatar/1 (' + getMsg.message.avatar_id + ').jpg');
@@ -160,8 +162,6 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
     console.log(error)
   }
   Vue.prototype.$socket = socket
-
-
 
   Vue.use(MuseUI)
 

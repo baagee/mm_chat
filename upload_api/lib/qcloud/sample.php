@@ -21,9 +21,9 @@ $dst2 = 'hello2.txt';
 $folder = '/testfolder';
 //config your information
 $config = array(
-    'app_id' => '1256151484',
-    'secret_id' => 'AKID6MYZQQM9cy98oPx9Vfd7f6LQM7g8Lots',
-    'secret_key' => 'whzMbiiWAwcBaBqMgHm5sY8iD1CMQJ0Y',
+    'app_id' => '',
+    'secret_id' => '',
+    'secret_key' => '',
     'region' => 'bj',   // bucket所属地域：华北 'tj' 华东 'sh' 华南 'gz'
     'timeout' => 60
 );

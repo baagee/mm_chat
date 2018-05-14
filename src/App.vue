@@ -254,16 +254,56 @@ export default {
       }, 500);
     },
     createImgTag(src) {
-      // var loading='/static/assets/loading.gif';
       var error = "/static/assets/error.png";
       var tag =
-        "<img style='max-width:300px' src='" +
+        "<img style='max-width:300px;cursor: pointer;' src='" +
         src +
         "' onerror=\"this.src='" +
         error +
         "'\">";
-      //  onload=\"this.src='"+loading+"'\"
       return tag;
+    },
+    uploadImageHandle(param, config) {
+      Indicator.open({
+        text: "上传中...",
+        spinnerType: "fading-circle"
+      });
+      this.$axios
+        .post("/upload.php", param, config)
+        .then(response => {
+          console.log(response);
+          if (response.data.res == true) {
+            Indicator.close();
+            // 上传成功 发送socket
+            for (var nickname in this.at_map) {
+              if (this.message.indexOf(nickname) !== -1) {
+                this.to.push(this.at_map[nickname]);
+              }
+            }
+            var send = {
+              action: "chat",
+              nickname: this.myself.info.nickname,
+              message: this.message,
+              avatar_id: this.mt_rand,
+              // 如果to 目标用户数组为空，则在线所有人都能接受
+              to: this.uniqueArray(this.to)
+            };
+            this.$socket.send(JSON.stringify(send));
+            send.message = "[img]:" + response.data.img_path;
+            this.$socket.send(JSON.stringify(send));
+            this.message = "";
+            this.to = [];
+          } else {
+            Indicator.close();
+            this.alert_open = true;
+            this.alert_msg = response.data.err_msg;
+          }
+        })
+        .catch(error => {
+          Indicator.close();
+          console.log(error);
+          alert("抱歉，出现未知错误");
+        });
     },
     // 上传图片
     uploadImage(e) {
@@ -282,46 +322,7 @@ export default {
         this.alert_open = true;
         this.alert_msg = "请不要上传大于5Mb的图片";
       } else {
-        Indicator.open({
-          text: "上传中...",
-          spinnerType: "fading-circle"
-        });
-        this.$axios
-          .post("/upload.php", param, config)
-          .then(response => {
-            console.log(response);
-            if (response.data.res == true) {
-              Indicator.close();
-              // 上传成功 发送socket
-              for (var nickname in this.at_map) {
-                if (this.message.indexOf(nickname) !== -1) {
-                  this.to.push(this.at_map[nickname]);
-                }
-              }
-              var send = {
-                action: "chat",
-                nickname: this.myself.info.nickname,
-                message: this.message,
-                avatar_id: this.mt_rand,
-                // 如果to 目标用户数组为空，则在线所有人都能接受
-                to: this.uniqueArray(this.to)
-              };
-              this.$socket.send(JSON.stringify(send));
-              send.message = "[img]:" + response.data.img_path;
-              this.$socket.send(JSON.stringify(send));
-              this.message = "";
-              this.to = [];
-            } else {
-              Indicator.close();
-              this.alert_open = true;
-              this.alert_msg = response.data.err_msg;
-            }
-          })
-          .catch(error => {
-            Indicator.close();
-            console.log(error);
-            alert("抱歉，出现未知错误");
-          });
+        this.uploadImageHandle(param, config);
       }
     },
     loginHandle() {
@@ -376,7 +377,7 @@ export default {
         this.at_map["@" + nickname] = id;
         this.message += "@" + nickname + " ";
       }
-      document.getElementsByClassName('mu-text-field-textarea')[0].focus();
+      document.getElementsByClassName("mu-text-field-textarea")[0].focus();
     },
     // 发送消息
     sendMessage() {
@@ -451,6 +452,14 @@ export default {
       this.mt_rand = avatar_id;
       Toast("头像选择成功");
       this.header_select_box = false;
+    },
+    // 粘贴上传base64图片
+    uploadBase64Image(base64_str) {
+      var param = {
+        img: base64_str,
+        "submission-type": "paste"
+      };
+      this.uploadImageHandle(this.$qs.stringify(param), {});
     }
   },
   computed: {
@@ -479,6 +488,72 @@ export default {
       // 昵称存在
       this.my_nickname = my_nickname;
     }
+
+    // 粘贴上传
+    document.addEventListener("paste", event => {
+      if (event.clipboardData || event.originalEvent) {
+        //not for ie11  某些chrome版本使用的是event.originalEvent
+        var clipboardData =
+          event.clipboardData || event.originalEvent.clipboardData;
+        if (clipboardData.items) {
+          // for chrome
+          var items = clipboardData.items,
+            len = items.length,
+            blob = null;
+
+          //阻止默认行为即不让剪贴板内容在div中显示出来
+          event.preventDefault();
+
+          //在items里找粘贴的image,据上面分析,需要循环
+          for (var i = 0; i < len; i++) {
+            if (items[i].type.indexOf("image") !== -1) {
+              //getAsFile() 此方法只是living standard firefox ie11 并不支持
+              blob = items[i].getAsFile();
+            }
+          }
+          if (blob !== null) {
+            var reader = new FileReader();
+            reader.onload = event => {
+              // event.target.result 即为图片的Base64编码字符串
+              var base64_str = event.target.result;
+              //可以在这里写上传逻辑 直接将base64编码的字符串上传（可以尝试传入blob对象，看看后台程序能否解析）
+              this.uploadBase64Image(base64_str);
+            };
+            reader.readAsDataURL(blob);
+          }
+        } else {
+          //for firefox
+          setTimeout(() => {
+            //设置setTimeout的原因是为了保证图片先插入到div里，然后去获取值
+            var imgList = document.querySelectorAll("#tar_box img"),
+              len = imgList.length,
+              src_str = "",
+              i;
+            for (i = 0; i < len; i++) {
+              if (imgList[i].className !== "my_img") {
+                //如果是截图那么src_str就是base64 如果是复制的其他网页图片那么src_str就是此图片在别人服务器的地址
+                src_str = imgList[i].src;
+              }
+            }
+            this.uploadBase64Image(src_str);
+          }, 1);
+        }
+      } else {
+        //for ie11
+        setTimeout(() => {
+          var imgList = document.querySelectorAll("#tar_box img"),
+            len = imgList.length,
+            src_str = "",
+            i;
+          for (i = 0; i < len; i++) {
+            if (imgList[i].className !== "my_img") {
+              src_str = imgList[i].src;
+            }
+          }
+          this.uploadBase64Image(src_str);
+        }, 1);
+      }
+    });
   }
 };
 </script>

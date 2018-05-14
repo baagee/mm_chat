@@ -6,7 +6,7 @@ function _convert(str) {
     return str;
 }
 
-function _notice(message,icon) {
+function _notice(message, icon) {
     if (!window.Notification) {
         console.log("浏览器不支持通知！");
     }
@@ -22,7 +22,7 @@ function _notice(message,icon) {
             var permission = Notification.permission;
             console.log('permission: ' + permission);
         });
-    }else if(Notification.permission == "granted"){
+    } else if (Notification.permission == "granted") {
         var n = new Notification("有人@你哦！", { "icon": icon, "body": message });
         n.onshow = function () {
             console.log("显示通知");
@@ -42,5 +42,5 @@ function _notice(message,icon) {
 
 export default {
     convert: _convert,
-    notice:_notice
+    notice: _notice
 }
