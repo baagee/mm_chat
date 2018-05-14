@@ -18,3 +18,15 @@ npm run build
 npm run build --report
 ```
 #### upload_api的upload.php为文件上传接口，chat_server文件夹的脚本为提供websocket服务端的脚本，在php cli模式下运行
+
+* 运行前请配置chat_server/run.php里面的图灵机器人apiKey(tuling_robot_apikey)
+* 配置upload_api/upload.php里面的腾讯对象存储参数,如下：
+```php
+$qc_config = array(
+    'app_id' => '',
+    'secret_id' => '',
+    'secret_key' => '',
+    'region' => '',   // bucket所属地域：华北 'tj' 华东 'sh' 华南 'gz'
+    'timeout' => 60
+);
+```
