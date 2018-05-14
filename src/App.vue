@@ -33,7 +33,7 @@
     <p>
       选择图片发送之前注意要先@某人，千万别发送，然后选择你要发的图片会自动发送的。如果你想只给某人发私密照，但是没有@他直接选择图片，那么全部人员都会看到哦。。
     </p>
-    <h3>5：如何更换图像？</h3>
+    <h3>5：如何更换头像？</h3>
     <p>
       在登录页点击头像进入头像选择，然后点击中意的头像就ok啦
     </p>
@@ -182,7 +182,7 @@
     cursor:pointer;
     right:0;" @click.stop="show_emoji=!show_emoji"/>
 
-  <mu-text-field multiLine :rows="3" :rowsMax="3" hintText="请输入消息，记得按ctrl+enter快捷键发送哦" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;padding-left: 5px;" v-model="message" @keyup.native.17.13="sendMessage()"/>
+  <mu-text-field multiLine :rows="3" :rowsMax="3" hintText="请输入消息，记得按ctrl+enter快捷键发送哦" fullWidth style="width:100%;background-color: #f1f1f1;padding-right: 90px;padding-left: 5px;" v-model="message" @keyup.native.ctrl.enter="sendMessage()"/>
   <mu-raised-button label="发送消息" class="demo-raised-button" @click="sendMessage()" primary style="bottom: 61px;float:right;"/>
 </div>
 
