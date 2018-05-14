@@ -502,7 +502,7 @@ export default {
             blob = null;
 
           //阻止默认行为即不让剪贴板内容在div中显示出来
-          event.preventDefault();
+          // event.preventDefault();
 
           //在items里找粘贴的image,据上面分析,需要循环
           for (var i = 0; i < len; i++) {
