@@ -53,6 +53,28 @@ class TulingRobot
      */
     public function request($input, $userId, $reqType = 0)
     {
+        $res = $this->curlPost($this->buildPostParams($input, $userId, $reqType));
+        return $this->getReturn($res);
+    }
+
+    public function getReturn($res)
+    {
+        if (in_array($res['intent']['code'], array_keys($this->error_map))) {
+            $res['results'][0]['resultType'] = 'text';
+            $res['results'][0]['values']['text'] = $this->error_map[$res['intent']['code']];
+        }
+        return $res['results'];
+    }
+
+    /**
+     * 组织请求参数
+     * @param string $input 请求消息
+     * @param int $userId 用户id
+     * @param int $reqType 发送消息的类型 只能是 以上定义的
+     * @return mixed
+     */
+    public function buildPostParams($input, $userId, $reqType = 0)
+    {
         switch ($reqType) {
             case self::REQ_TEXT:
                 $perception = [
@@ -91,12 +113,7 @@ class TulingRobot
                 'userId' => $userId
             ]
         ];
-        $res = $this->curlPost(json_encode($send, JSON_UNESCAPED_UNICODE));
-        if (in_array($res['intent']['code'], array_keys($this->error_map))) {
-            $res['results'][0]['resultType'] = 'text';
-            $res['results'][0]['values']['text'] = $this->error_map[$res['intent']['code']];
-        }
-        return $res['results'];
+        return json_encode($send, JSON_UNESCAPED_UNICODE);
     }
 
     /**
@@ -116,18 +133,7 @@ class TulingRobot
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         $res = curl_exec($ch);
         curl_close($ch);
+
         return json_decode($res, true);
     }
 }
-
-$apiKey = 'fc48aee50a9a46f888379777d133631b';
-$robot = new TulingRobot($apiKey);
-
-
-// $send='测试的';
-// $res=$robot->request($send,2,TulingRobot::REQ_TEXT);
-
-$send = 'img/em_20.jpg';
-$res = $robot->request($send, 2, TulingRobot::REQ_IMAGE);
-
-var_dump($res);

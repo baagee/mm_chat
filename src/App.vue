@@ -75,7 +75,7 @@
           <mu-list>
             <mu-list-item style="border-bottom:1px dotted #ccc;"  title="机器人-小希">
               <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-              <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'小希')" title="点击@我哦"/>
+              <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
             </mu-list-item>
             <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
               <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
@@ -99,9 +99,9 @@
         <span :slot="chat.self ? 'after':'title'" style="width:100%">
           <div style='font-size:12px;color:rgba(0,0,0,.54);text-align:right;margin-bottom:3px' v-if="chat.self">[{{chat.time}}] {{chat.nickname}}</div>
           <div style='font-size:12px;color:rgba(0,0,0,.54);margin-bottom:3px' v-else>{{chat.nickname}} [{{chat.time}}]</div>
-                    <span class="content" @click="chat.type=='str'?'':showBigImg(chat.message)"
+                    <span class="content" @click="chat.type=='img'?showBigImg(chat.message):''"
                     :style="!chat.self?'font-size:14px;':'float: right;'" 
-                    v-html="chat.type=='str'?chat.message:createImgTag(chat.message)">
+                    v-html="createResponseHtmlTag(chat)">
                     </span>
         </span>
       </mu-list-item>
@@ -196,6 +196,16 @@ export default {
       this.show_img = true;
       this.big_img = img_path;
     },
+    createResponseHtmlTag(chat){
+      if(chat.type==='text'){
+        var tag=chat.message;
+      }else if(chat.type=='url'){
+        var tag='<a target="_blank" href="'+chat.message+'">点击查看</a>';
+      }else if(chat.type=='img'){
+        var tag=this.createImgTag(chat.message);
+      }
+      return tag;
+    },
     loadMore() {
       if (this.header_num_s >= 260) {
         return false;
@@ -249,6 +259,11 @@ export default {
             if (response.data.res == true) {
               Indicator.close();
               // 上传成功 发送socket
+              for (var nickname in this.at_map) {
+                if (this.message.indexOf(nickname) !== -1) {
+                  this.to.push(this.at_map[nickname]);
+                }
+              }
               var send = {
                 action: "chat",
                 nickname: this.myself.info.nickname,

@@ -1,13 +1,15 @@
 <?php
 
 /**
- *  author: BaAGee
- *  createTime: 2018/5/8 21:09
+ * websocket服务端
+ * author: BaAGee
+ * createTime: 2018/5/8 21:09
  */
 class ChatServer
 {
     protected $redis_cli = null;
     protected $web_socket = null;
+    protected $robot = null;
 
     const ACTION_LOGIN = 'login';
     const ACTION_USER_ONLINE = 'user_online';
@@ -15,7 +17,8 @@ class ChatServer
     const ACTION_CHAT = 'chat';
     const ACTION_HEART = 'heart';
     const REDIS_ONLINE_USERS_KEY = 'online_users';
-
+    const TULING_API = 'openapi.tuling123.com';
+    const TULING_API_PATH = '/openapi/api/v2';
     const TULING_API_KEY = 'fc48aee50a9a46f888379777d133631b';
 
     public function __construct($conf)
@@ -23,6 +26,7 @@ class ChatServer
         try {
             $this->redis_cli = $this->connectRedis($conf['redis']);
             $this->web_socket = $this->createWebSocket($conf['web_socket']);
+            $this->robot = $this->createRobot($conf['tuling_robot_apikey']);
             $this->initOnlineUsers();
         } catch (\Exception $e) {
             echo 'Error: ' . '[' . $e->getCode() . '] ' . $e->getMessage();
@@ -193,7 +197,7 @@ class ChatServer
         foreach ($tos as $fd) {
             if ($fd == -1) {
                 echo '请求图灵api' . PHP_EOL;
-                $this->postRobot($send_data);
+                $this->postRobot($send_data, $user_id);
             } else {
                 $res = $this->checkUserExist($fd);
                 if ($fd != $user_id && $res) {
@@ -203,37 +207,84 @@ class ChatServer
             }
         }
     }
-    
-    private function postRobot($send_data)
+
+    /**
+     * 处理和机器人的对话
+     * @param $send_data
+     * @param $user_id
+     */
+    private function postRobot($send_data, $user_id)
     {
         $send_data = json_decode($send_data, true);
-        $message = str_replace('@小希 ', '', $send_data['message']['message']);
-        $apiURL = "http://www.tuling123.com/openapi/api?key=" . self::TULING_API_KEY . "&info=" . $message;
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $apiURL);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $file_contents = curl_exec($ch);
-        curl_close($ch);
-        $res = json_decode($file_contents, true);
-        echo '请求图灵机器人接口结果：' . PHP_EOL;
-        var_dump($res);
-        if ($res['code'][0] == 4) {
-            $robot_message = '机器人出错啦';
-        } else {
-            if ($res['code'] == 100000) {
-                $robot_message = $res['text'];
-            } else if ($res['code'] == 200000) {
-                $robot_message = $res['text'] . ', 链接地址：' . $res['url'];
-            } else {
-                $robot_message = '抱歉啊，这个我不懂哦^_^';
-            }
-        }
-        $send_data['message']['message'] = $robot_message;
+        $at_nickname = $send_data['message']['nickname'];
         $send_data['message']['nickname'] = '机器人-小希';
         $send_data['message']['avatar_id'] = 261;
+        $send_data['message']['time'] = date('H:i:s');
         unset($send_data['message']['at_you']);
-        // 向所有人发送机器人结果
-        $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
+
+        $message = str_replace('@机器人-小希 ', '', $send_data['message']['message']);
+//        "[img]:./upload/images/1526261817265746345.png"
+        if (strpos($message, '[img]:') === false) {
+//            同步方式
+//            $response = $this->robot->request($message, $user_id, TulingRobot::REQ_TEXT);
+//            foreach ($response as $item) {
+//                /*文本(text);连接(url);音频(voice);视频(video);图片(image);图文(news)*/
+//                if ($item['resultType'] === 'text') {
+//                    /*返回文字消息*/
+//                    $send_data['message']['message'] = '@' . $at_nickname . ' ' . $item['values']['text'];
+//                } else if ($item['resultType'] === 'url') {
+//                    /*返回url地址*/
+//                    $send_data['message']['message'] = '[url]:' . $item['values']['url'];
+//                } else if ($item['resultType'] === 'image') {
+//                    /*返回图片*/
+//                    $send_data['message']['message'] = '@' . $at_nickname . ' 丢你一张图';
+//                    $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
+//                    $send_data['message']['message'] = '[img]:' . $item['values']['image'];
+//                } else {
+//                    /*其他类型不应答*/
+//                    $send_data['message']['message'] = '@' . $at_nickname . ' &（*……￥￥@%￥E&*^&*()^*(7';
+//                }
+//                // 向所有人发送机器人结果
+//                $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
+//            }
+
+            /*swoole 异步方式*/
+            $cli = new swoole_http_client(self::TULING_API, 80);
+            $requestJson = $this->robot->buildPostParams($message, $user_id, TulingRobot::REQ_TEXT);
+            $cli->post(self::TULING_API_PATH, $requestJson, function ($cli) use ($at_nickname, $send_data) {
+                $res = json_decode($cli->body, true);
+                echo '机器人响应：' . PHP_EOL;
+                var_dump($res);
+                $response = $this->robot->getReturn($res);
+                if (is_array($response)) {
+                    foreach ($response as $item) {
+                        /*文本(text);连接(url);音频(voice);视频(video);图片(image);图文(news)*/
+                        if ($item['resultType'] === 'text') {
+                            /*返回文字消息*/
+                            $send_data['message']['message'] = '@' . $at_nickname . ' ' . $item['values']['text'];
+                        } else if ($item['resultType'] === 'url') {
+                            /*返回url地址*/
+                            $send_data['message']['message'] = '[url]:' . $item['values']['url'];
+                        } else if ($item['resultType'] === 'image') {
+                            /*返回图片*/
+                            $send_data['message']['message'] = '@' . $at_nickname . ' 丢你一张图';
+                            $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
+                            $send_data['message']['message'] = '[img]:' . $item['values']['image'];
+                        } else {
+                            /*其他类型不应答*/
+                            $send_data['message']['message'] = '@' . $at_nickname . ' &（*……￥￥@%￥E&*^&*()^*(7';
+                        }
+                        // 向所有人发送机器人结果
+                        $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
+                    }
+                } else {
+                    $send_data['message']['message'] = '@' . $at_nickname . ' 我出错了';
+                    $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
+                }
+            });
+        } else {
+            echo '发图片';
+        }
     }
 
     /**
@@ -284,18 +335,10 @@ class ChatServer
         echo 'web socket 已创建' . PHP_EOL;
         return $web_socket;
     }
+
+    private function createRobot($apiKey)
+    {
+        include_once __DIR__ . '/TulingRobot.php';
+        return new TulingRobot($apiKey, $this->web_socket);
+    }
 }
-
-$conf = [
-    'redis' => [
-        'host' => '127.0.0.1',
-        'port' => 6379
-    ],
-    'web_socket' => [
-        'host' => '0.0.0.0',
-        'port' => 8989
-    ]
-];
-
-$chat_server = new ChatServer($conf);
-$chat_server->run();
