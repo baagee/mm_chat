@@ -128,7 +128,8 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         // 收到消息
         if (getMsg.message.message.indexOf('[img]:') === 0) {
           getMsg.message.type = 'img'
-          var img_url = BASE_URL + getMsg.message.message.substring(7)
+          // var img_url = BASE_URL + getMsg.message.message.substring(7)
+          var img_url = getMsg.message.message.substring(6)
           getMsg.message.message = img_url
         } else if(getMsg.message.message.indexOf('[url]:') !== -1){
           getMsg.message.type = 'url';

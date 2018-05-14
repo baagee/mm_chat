@@ -199,8 +199,7 @@ class ChatServer
                 echo '请求图灵api' . PHP_EOL;
                 $this->postRobot($send_data, $user_id);
             } else {
-                $res = $this->checkUserExist($fd);
-                if ($fd != $user_id && $res) {
+                if ($fd != $user_id && $this->checkUserExist($fd) && $this->web_socket->exist($fd)) {
                     echo '向用户 user_id=' . $fd . ' 发消息:' . $send_data . PHP_EOL;
                     $this->web_socket->push($fd, $send_data);
                 }
@@ -223,38 +222,20 @@ class ChatServer
         unset($send_data['message']['at_you']);
 
         $message = str_replace('@机器人-小希 ', '', $send_data['message']['message']);
-//        "[img]:./upload/images/1526261817265746345.png"
         if (strpos($message, '[img]:') === false) {
-//            同步方式
-//            $response = $this->robot->request($message, $user_id, TulingRobot::REQ_TEXT);
-//            foreach ($response as $item) {
-//                /*文本(text);连接(url);音频(voice);视频(video);图片(image);图文(news)*/
-//                if ($item['resultType'] === 'text') {
-//                    /*返回文字消息*/
-//                    $send_data['message']['message'] = '@' . $at_nickname . ' ' . $item['values']['text'];
-//                } else if ($item['resultType'] === 'url') {
-//                    /*返回url地址*/
-//                    $send_data['message']['message'] = '[url]:' . $item['values']['url'];
-//                } else if ($item['resultType'] === 'image') {
-//                    /*返回图片*/
-//                    $send_data['message']['message'] = '@' . $at_nickname . ' 丢你一张图';
-//                    $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
-//                    $send_data['message']['message'] = '[img]:' . $item['values']['image'];
-//                } else {
-//                    /*其他类型不应答*/
-//                    $send_data['message']['message'] = '@' . $at_nickname . ' &（*……￥￥@%￥E&*^&*()^*(7';
-//                }
-//                // 向所有人发送机器人结果
-//                $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
-//            }
-
+            if(trim($message)!=''){
+                $requestJson = $this->robot->buildPostParams($message, $user_id, TulingRobot::REQ_TEXT);
+            }
+        } else {
+            $requestJson = $this->robot->buildPostParams(str_replace('[img]:','',$message),$user_id, TulingRobot::REQ_IMAGE);
+        }
+        if(trim($message)!=''){
             /*swoole 异步方式*/
             $cli = new swoole_http_client(self::TULING_API, 80);
-            $requestJson = $this->robot->buildPostParams($message, $user_id, TulingRobot::REQ_TEXT);
             $cli->post(self::TULING_API_PATH, $requestJson, function ($cli) use ($at_nickname, $send_data) {
                 $res = json_decode($cli->body, true);
                 echo '机器人响应：' . PHP_EOL;
-                var_dump($res);
+                var_dump($cli->body);
                 $response = $this->robot->getReturn($res);
                 if (is_array($response)) {
                     foreach ($response as $item) {
@@ -282,8 +263,6 @@ class ChatServer
                     $this->batchSendMessage($this->web_socket->connections, json_encode($send_data, JSON_UNESCAPED_UNICODE), -1);
                 }
             });
-        } else {
-            echo '发图片';
         }
     }
 
@@ -295,7 +274,7 @@ class ChatServer
     private function checkUserExist($user_id)
     {
         $res = $this->redis_cli->hExists(self::REDIS_ONLINE_USERS_KEY, 'user_' . $user_id);
-        echo '检查用户 user_id=' . $user_id . ' 是否在线:' . $res . PHP_EOL;
+        echo '检查用户 user_id=' . $user_id . ' 是否在redis:' . $res . PHP_EOL;
         return $res;
     }
 

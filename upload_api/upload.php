@@ -1,15 +1,13 @@
 <?php
-/**
- *  author: BaAGee
- *  createTime: 2018/5/9 23:28
- */
-// 本地开发测试加的
 
-// header('Access-Control-Allow-Origin:http://localhost:8080');
+header('Access-Control-Allow-Origin:http://localhost:8080');
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
 header('Content-Type:application/json; charset=utf-8');
 header('Access-Control-Allow-Credentials:true');
 
+include __DIR__.'/qcloud/cos/Api.php';
+
+use qcloud\cos\Api;
 
 class FileUpload{
 
@@ -18,14 +16,17 @@ class FileUpload{
 
     private $upload_type='';
     private $upload_dir='';
+    private $qcloud_conf=[];
 
     private $allow_type=array(
         'image'=>['image/jpg','image/jpeg','image/png','image/pjpeg','image/gif','image/bmp','image/x-png'],
     );
 
-    public function __construct($upload_dir,$upload_type){
+    public function __construct($upload_dir,$upload_type,$bucket,$qcloud_conf){
         $this->upload_dir=$upload_dir;
         $this->upload_type=$upload_type;
+        $this->bucket=$bucket;
+        $this->qcloud_conf=$qcloud_conf;
     }
 
     public function checkPath(){
@@ -55,6 +56,28 @@ class FileUpload{
         return $new_file;
     }
 
+    public function upload2Qcloud($tmp_file,$ext){
+        $new_file=self::PATH.$this->upload_dir.'/'.time().mt_rand().$ext;
+        
+        $src = $tmp_file;
+        $day=date('Y-m-d');
+        $folder = '/'.$this->upload_dir.'/'.$day;
+        $dst = '/'.$this->upload_dir.'/'.$day.'/'.time().mt_rand().$ext;
+
+        date_default_timezone_set('PRC');
+        $cosApi = new Api($this->qcloud_conf);
+        $ret = $cosApi->createFolder($this->bucket, $folder);
+        if($ret['code']!==0 && $ret['message']!=='SUCCESS'){
+            throw new Exception("腾讯云创建文件夹失败");
+        }
+
+        $ret = $cosApi->upload($this->bucket, $src, $dst);
+        if($ret['code']!==0 && $ret['message']!=='SUCCESS'){
+            throw new Exception("上传文件到腾讯云失败");
+        }
+        return $ret['data']['source_url'];
+    }
+
     public function upload(){
     	if(is_uploaded_file($_FILES[$this->upload_type]['tmp_name'])){
     		if(!$this->checkType($_FILES[$this->upload_type]['type'])){
@@ -64,7 +87,7 @@ class FileUpload{
 	            switch ($_FILES[$this->upload_type]['error']) {
 	                case 1 :
 	                case 2 :
-	                	throw new Exception('上传文件过大');
+	                	throw new Exception('上传文件过大，max='.ini_get('upload_max_filesize'));
 	                case 3 :
 	                	throw new Exception("上传文件丢失");
 	                case 4 :
@@ -81,20 +104,31 @@ class FileUpload{
 	        $this->checkSize($size);
 	        $tmp_name=$_FILES[$this->upload_type]['tmp_name'];
 	        $ext=strchr($_FILES[$this->upload_type]['name'],'.');
-	        return $this->moveFile($tmp_name,$ext);
+            // return $this->moveFile($tmp_name,$ext);
+	        return $this->upload2Qcloud($tmp_name,$ext);
     	}else{
     		throw new Exception("上传文件失败#2");
     	}
     }
 }
-ini_set('date.timezone','Asia/Shanghai');
+
 
 // 上传文件保存的文件夹名称
 $upload_dir='images';
 // 上传文件类型，就是表单名称
 $upload_type='image';
+
+$qc_config = array(
+    'app_id' => '',
+    'secret_id' => '',
+    'secret_key' => '',
+    'region' => 'bj',   // bucket所属地域：华北 'tj' 华东 'sh' 华南 'gz'
+    'timeout' => 60
+);
+$bucket = 'chat-room';
+
 try{
-	$fileUpload=new FileUpload($upload_dir,$upload_type);
+	$fileUpload=new FileUpload($upload_dir,$upload_type,$bucket,$qc_config);
 	$res=$fileUpload->upload();
 	die(json_encode(['res'=>true,'img_path'=>$res],JSON_UNESCAPED_UNICODE));
 }catch(Exception $e){

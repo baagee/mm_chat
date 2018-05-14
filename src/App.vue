@@ -267,11 +267,13 @@ export default {
               var send = {
                 action: "chat",
                 nickname: this.myself.info.nickname,
-                message: "[img]:" + response.data.img_path,
+                message: this.message,
                 avatar_id: this.mt_rand,
                 // 如果to 目标用户数组为空，则在线所有人都能接受
                 to: this.uniqueArray(this.to)
               };
+              this.$socket.send(JSON.stringify(send));
+              send.message="[img]:" + response.data.img_path;              
               this.$socket.send(JSON.stringify(send));
               this.message = "";
               this.to = [];
