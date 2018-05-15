@@ -1,6 +1,6 @@
 # 聊天室
 
-> 秘密聊天室，使用vue搭建界面，php的扩展swoole写websocket服务端，具有发表情，发图片，@某人的功能。
+> 秘密聊天室，使用vue搭建界面，php的扩展swoole写websocket服务端，具有发表情，发图片(能粘贴图片发送)，@某人的功能。
 
 访问链接：[点击进入聊天室](http://chat.baagee.vip)
 

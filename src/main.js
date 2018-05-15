@@ -142,7 +142,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           // 解析表情
           getMsg.message.message = Tools.convert(getMsg.message.message)
         }
-        if (getMsg.message.message.indexOf(store.state.myself.info.nickname) !== -1) {
+        if (getMsg.message.message.indexOf('@'+store.state.myself.info.nickname) !== -1) {
           getMsg.message['at_you'] = true;
         }
         if ('at_you' in getMsg.message) {

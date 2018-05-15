@@ -21,6 +21,7 @@ class Base64ImageUpload{
         if($ret['code']!==0 && $ret['message']!=='SUCCESS'){
             throw new Exception("上传文件到腾讯云失败");
         }
+        unlink($src);
         return $ret['data']['source_url'];
 	}
 
