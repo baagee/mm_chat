@@ -71,13 +71,13 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
     console.log('连接成功')
     // 获取缓存昵称
     var my_nickname = localStorage.getItem("my_nickname");
-    var mt_rand = localStorage.getItem("mt_rand");
+    var avatar_id = localStorage.getItem("avatar_id");
     if (my_nickname != null) {
       if (socket.readyState == 1) {
         var login_data = {
           action: "login",
           nickname: my_nickname,
-          avatar_id: mt_rand
+          avatar_id: avatar_id
         };
         console.log("登录发送的数据：", login_data);
         socket.send(JSON.stringify(login_data));

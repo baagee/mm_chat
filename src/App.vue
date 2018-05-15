@@ -1,10 +1,7 @@
 <template>
   <div id="app" @click="show_emoji=false">
 
-    <mu-dialog :open="alert_open" title="提示">
-      {{alert_msg}}
-    <mu-flat-button label="确定" slot="actions" primary @click="alertClose()"/>
-  </mu-dialog>
+<alert :alert_open="alert_open" :alert_msg="alert_msg" @closeAlert='alert_open=false'></alert>
 
   <!-- 图片放大 -->
   <mu-dialog :open="show_img" @close="show_img=false">
@@ -17,77 +14,14 @@
     <mu-flat-button label="确定" slot="actions" primary @click="sendBase64Image()"/>
   </mu-dialog>
 
+<helper @closeHelper='closeHelper' v-if="show_help"></helper>
 
-
-  <div v-if="show_help" class="login_box" style="text-align:left">
-<div>
-    <h3>1：关于发送消息的快捷键</h3>
-    <p>
-      你不能使用回车（enter）来发送，请使用ctrl+enter(回车)来发送，因为回车是输入框的换行，所以你只能用ctrl+enter快捷键来发送消息了
-    </p>
-    <h3>2：关于@别人</h3>
-    <p>
-      <h4>2.1：@别人是什么功能？</h4>
-      当你@别人时相当于只给他自己发了消息（私聊），你没@的人是不会受到消息的，如果你谁都没@，则全部在线人员都能接受到你的消息。
-      <h4>2.2：如何@别人？</h4>
-      在左边的在线用户列表中，每个用户（除了你自己）右边有一个消息的图标，鼠标点击那个会在消息输入框自动加入@xxx，
-      <span style="color:red">但是如果你在输入框手动输入@某某是不会起到@的作用的，只有通过鼠标点击消息的标志才起作用</span>
-    </p>
-    <h3>3：聊天机器人如何使用？</h3>
-    <p>
-      和@别人一样，你只需要@她就行啦，此时应该注意，你@机器人时所有在线人员都能看到你和机器人的聊天，和@某个用户不一样
-    </p>
-    <h3>4：给@的人发送图片？</h3>
-    <p>
-      选择图片发送之前注意要先@某人，千万别发送，然后选择你要发的图片会自动发送的。如果你想只给某人发私密照，但是没有@他直接选择图片，那么全部人员都会看到哦。。
-    </p>
-    <h3>5：如何更换头像？</h3>
-    <p>
-      在登录页点击头像进入头像选择，然后点击中意的头像就ok啦
-    </p>
-</div>
-<br>
-<div style="text-align:center">
-      <mu-raised-button label="我了解啦" @click='show_help=false' primary/>
-    </div>
-  </div>
-
-<div class="login_box" v-if="!is_login">
-<div style="padding-top:8%;">
-  <h1 style='color:#7e57c2'>秋名山</h1>
-  <div style="
-  height: 200px;  
-  ">
-  <div v-show="header_select_box" ref="header_select_box" style="
-  height: 200px;
-  overflow: auto;
-  width: 300px;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid #d9d9d9;
-  display:inline-block;
-">
-<span class="one_header" v-for="(item,index) in header_list" :key="index">
-        <img :src="'/static/assets/avatar/1 ('+item+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;" @click="selectThisAvatar(item)">
-
-</span>
-  <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
-  </div>
-        <img @click="header_select_box=true" v-show="!header_select_box" :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;" title="点击我选择头像哦">
-  </div>
-</div>
-
-<div style="margin-top:3%">
-  <mu-text-field label="输入昵称" labelFloat v-model="my_nickname" @keyup.native.enter="login()"/>
-  <br>
-  <mu-raised-button label="开始聊天" class="demo-raised-button" primary @click="login()"/>
-</div>
-</div>
-
+<login v-if="!is_login" ></login>
 
 
 <mu-appbar title="秋名山-请不要酒后开车" v-if="is_login">
-  <span slot="right" style="margin-right:10px">{{my_nickname}}</span>
-      <mu-avatar :src="'/static/assets/avatar/1 ('+mt_rand+').jpg'" slot="right" />
+  <span slot="right" style="margin-right:10px">{{myself.info.nickname}}</span>
+      <mu-avatar :src="'/static/assets/avatar/1 ('+myself.info.avatar_id+').jpg'" slot="right" />
 
   <mu-icon-menu slot="right" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'top'}"
       :targetOrigin="{horizontal: 'right', vertical: 'top'}">
@@ -205,36 +139,38 @@
 import { mapState } from "vuex";
 import { Indicator } from "mint-ui";
 import { Toast } from "mint-ui";
+
+import Helper from "./components/help";
+import Login from "./components/login";
+import Alert from './components/alert';
+
 export default {
   name: "App",
   data() {
-    const header_list = [];
-    for (let i = 1; i <= 20; i++) {
-      header_list.push(i);
-    }
     return {
-      header_list,
-      header_num_s: 20,
-      header_loading: false,
-      scroller: null,
       message: "",
       at_map: {},
       to: [],
       search_keywoyds: "",
       alert_open: false,
       alert_msg: "",
-      my_nickname: "",
-      mt_rand: 1,
       show_emoji: false,
       show_img: false,
       big_img: "",
-      header_select_box: false,
       show_help: false,
-      show_send_img_confirm:false,
-      base64_img:''
+      show_send_img_confirm: false,
+      base64_img: ""
     };
   },
+  components: {
+    Helper,
+    Login,
+    Alert
+  },
   methods: {
+    closeHelper() {
+      this.show_help = false;
+    },
     // 显示大图
     showBigImg(img_path) {
       this.show_img = true;
@@ -249,19 +185,6 @@ export default {
         var tag = this.createImgTag(chat.message);
       }
       return tag;
-    },
-    loadMore() {
-      if (this.header_num_s >= 260) {
-        return false;
-      }
-      this.header_loading = true;
-      setTimeout(() => {
-        for (let i = this.header_num_s + 1; i <= this.header_num_s + 20; i++) {
-          this.header_list.push(i);
-        }
-        this.header_num_s += 20;
-        this.header_loading = false;
-      }, 500);
     },
     createImgTag(src) {
       var error = "/static/assets/error.png";
@@ -294,7 +217,7 @@ export default {
               action: "chat",
               nickname: this.myself.info.nickname,
               message: this.message,
-              avatar_id: this.mt_rand,
+              avatar_id: this.myself.info.avatar_id,
               // 如果to 目标用户数组为空，则在线所有人都能接受
               to: this.uniqueArray(this.to)
             };
@@ -334,31 +257,6 @@ export default {
       } else {
         this.uploadImageHandle(param, config);
       }
-    },
-    loginHandle() {
-      /*
-      0        CONNECTING        连接尚未建立
-    1        OPEN            WebSocket的链接已经建立
-    2        CLOSING            连接正在关闭
-    3        CLOSED            连接已经关闭或不可用
-      */
-
-      if (this.$socket.readyState == 1) {
-        var login_data = {
-          action: "login",
-          nickname: this.my_nickname,
-          avatar_id: this.mt_rand
-        };
-        console.log("登录发送的数据：", login_data);
-        this.$socket.send(JSON.stringify(login_data));
-      } else {
-        alert("网络连接失败，请刷新");
-        return false;
-      }
-    },
-    // 关闭弹框提示
-    alertClose() {
-      this.alert_open = false;
     },
     // 选择表情
     addEmoji(key) {
@@ -400,7 +298,7 @@ export default {
         action: "chat",
         nickname: this.myself.info.nickname,
         message: this.message,
-        avatar_id: this.mt_rand,
+        avatar_id: this.myself.info.avatar_id,
         // 如果to 目标用户数组为空，则在线所有人都能接受
         to: this.uniqueArray(this.to)
       };
@@ -433,35 +331,13 @@ export default {
         // todo滚动条发图时不能到最下面
       });
     },
-    // 登录
-    login() {
-      var len = this.my_nickname.replace(/[\u0391-\uFFE5]/g, "aa").length;
-      console.log(len);
-      if (len > 0 && len <= 14) {
-        // 昵称合法，保存本地缓存
-        localStorage.setItem("my_nickname", this.my_nickname);
-        // 发送socket登录
-        this.loginHandle();
-      } else {
-        // 昵称太长
-        this.alert_open = true;
-        this.alert_msg = "昵称太长，不要超过4个汉字或者8个英文字符";
-      }
-    },
+
     // 退出登录
     logout() {
       this.$socket.close();
       localStorage.removeItem("my_nickname");
-      this.my_nickname = "";
-      this.mt_rand = 1;
+      localStorage.removeItem("avatar_id");
       location.reload();
-    },
-    // 改变头像
-    selectThisAvatar(avatar_id) {
-      localStorage.setItem("mt_rand", avatar_id);
-      this.mt_rand = avatar_id;
-      Toast("头像选择成功");
-      this.header_select_box = false;
     },
     // 粘贴上传base64图片sendBase64Image
     sendBase64Image() {
@@ -469,8 +345,8 @@ export default {
         img: this.base64_img,
         "submission-type": "paste"
       };
-      this.show_send_img_confirm=false;
-      this.base64_img='';
+      this.show_send_img_confirm = false;
+      this.base64_img = "";
       this.uploadImageHandle(this.$qs.stringify(param), {});
     }
   },
@@ -481,26 +357,8 @@ export default {
     chat_list: "scrollToBottom"
   },
   mounted() {
-    this.scroller = this.$refs.header_select_box;
     var div = document.getElementById("message_content");
     div.scrollTop = div.scrollHeight;
-    // 获取随机数
-    this.mt_rand = localStorage.getItem("mt_rand");
-    if (this.mt_rand == null) {
-      // 没有随机数 就生成
-      this.mt_rand = parseInt(Math.random() * 259) + 1;
-      localStorage.setItem("mt_rand", this.mt_rand);
-    }
-    // 获取缓存昵称
-    var my_nickname = localStorage.getItem("my_nickname");
-    console.log(my_nickname);
-    if (my_nickname == null) {
-      // 缓存昵称不存在未登录
-    } else {
-      // 昵称存在
-      this.my_nickname = my_nickname;
-    }
-
     // 粘贴上传
     document.addEventListener("paste", event => {
       if (event.clipboardData || event.originalEvent) {
@@ -529,8 +387,8 @@ export default {
               // event.target.result 即为图片的Base64编码字符串
               var base64_str = event.target.result;
               //可以在这里写上传逻辑 直接将base64编码的字符串上传（可以尝试传入blob对象，看看后台程序能否解析）
-              this.base64_img=base64_str;
-              this.show_send_img_confirm=true;
+              this.base64_img = base64_str;
+              this.show_send_img_confirm = true;
               // this.uploadBase64Image(base64_str);
             };
             reader.readAsDataURL(blob);
@@ -550,7 +408,7 @@ export default {
         //         src_str = imgList[i].src;
         //       }
         //     }
-        //                   console.log(222);            
+        //                   console.log(222);
         //     this.uploadBase64Image(src_str);
         //   }, 1);
         // }
@@ -567,7 +425,7 @@ export default {
       //         src_str = imgList[i].src;
       //       }
       //     }
-      //                     console.log(333);          
+      //                     console.log(333);
       //     this.uploadBase64Image(src_str);
       //   }, 1);
       // }
@@ -604,14 +462,7 @@ export default {
 .mu-item-after {
   margin-right: 12px !important;
 }
-.login_box {
-  text-align: center;
-  width: 100%;
-  margin: 0;
-  z-index: 99999;
-  height: 100%;
-  /* background-color: #7e57c2; */
-}
+
 .mu-text-field-multiline {
   height: 79px;
 }
