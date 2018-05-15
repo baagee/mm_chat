@@ -11,6 +11,14 @@
     <img :src="big_img" style="width:100%">
   </mu-dialog>
 
+  <mu-dialog :open="show_send_img_confirm" @close="show_send_img_confirm=false" title="确定要发送这张图吗？">
+    <img :src="base64_img" style="width:100%">
+    <mu-flat-button slot="actions" @click="show_send_img_confirm=false"  label="取消"/>
+    <mu-flat-button label="确定" slot="actions" primary @click="sendBase64Image()"/>
+  </mu-dialog>
+
+
+
   <div v-if="show_help" class="login_box" style="text-align:left">
 <div>
     <h3>1：关于发送消息的快捷键</h3>
@@ -221,7 +229,9 @@ export default {
       show_img: false,
       big_img: "",
       header_select_box: false,
-      show_help: false
+      show_help: false,
+      show_send_img_confirm:false,
+      base64_img:''
     };
   },
   methods: {
@@ -453,12 +463,14 @@ export default {
       Toast("头像选择成功");
       this.header_select_box = false;
     },
-    // 粘贴上传base64图片
-    uploadBase64Image(base64_str) {
+    // 粘贴上传base64图片sendBase64Image
+    sendBase64Image() {
       var param = {
-        img: base64_str,
+        img: this.base64_img,
         "submission-type": "paste"
       };
+      this.show_send_img_confirm=false;
+      this.base64_img='';
       this.uploadImageHandle(this.$qs.stringify(param), {});
     }
   },
@@ -517,42 +529,48 @@ export default {
               // event.target.result 即为图片的Base64编码字符串
               var base64_str = event.target.result;
               //可以在这里写上传逻辑 直接将base64编码的字符串上传（可以尝试传入blob对象，看看后台程序能否解析）
-              this.uploadBase64Image(base64_str);
+              this.base64_img=base64_str;
+              this.show_send_img_confirm=true;
+              // this.uploadBase64Image(base64_str);
             };
             reader.readAsDataURL(blob);
           }
-        } else {
-          //for firefox
-          setTimeout(() => {
-            //设置setTimeout的原因是为了保证图片先插入到div里，然后去获取值
-            var imgList = document.querySelectorAll("#tar_box img"),
-              len = imgList.length,
-              src_str = "",
-              i;
-            for (i = 0; i < len; i++) {
-              if (imgList[i].className !== "my_img") {
-                //如果是截图那么src_str就是base64 如果是复制的其他网页图片那么src_str就是此图片在别人服务器的地址
-                src_str = imgList[i].src;
-              }
-            }
-            this.uploadBase64Image(src_str);
-          }, 1);
         }
-      } else {
-        //for ie11
-        setTimeout(() => {
-          var imgList = document.querySelectorAll("#tar_box img"),
-            len = imgList.length,
-            src_str = "",
-            i;
-          for (i = 0; i < len; i++) {
-            if (imgList[i].className !== "my_img") {
-              src_str = imgList[i].src;
-            }
-          }
-          this.uploadBase64Image(src_str);
-        }, 1);
+        //  else {
+        //   //for firefox
+        //   setTimeout(() => {
+        //     //设置setTimeout的原因是为了保证图片先插入到div里，然后去获取值
+        //     var imgList = document.querySelectorAll("#tar_box img"),
+        //       len = imgList.length,
+        //       src_str = "",
+        //       i;
+        //     for (i = 0; i < len; i++) {
+        //       if (imgList[i].className !== "my_img") {
+        //         //如果是截图那么src_str就是base64 如果是复制的其他网页图片那么src_str就是此图片在别人服务器的地址
+        //         src_str = imgList[i].src;
+        //       }
+        //     }
+        //                   console.log(222);            
+        //     this.uploadBase64Image(src_str);
+        //   }, 1);
+        // }
       }
+      //  else {
+      //   //for ie11
+      //   setTimeout(() => {
+      //     var imgList = document.querySelectorAll("#tar_box img"),
+      //       len = imgList.length,
+      //       src_str = "",
+      //       i;
+      //     for (i = 0; i < len; i++) {
+      //       if (imgList[i].className !== "my_img") {
+      //         src_str = imgList[i].src;
+      //       }
+      //     }
+      //                     console.log(333);          
+      //     this.uploadBase64Image(src_str);
+      //   }, 1);
+      // }
     });
   }
 };
