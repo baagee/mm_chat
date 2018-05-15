@@ -8,7 +8,7 @@
     <img :src="big_img" style="width:100%">
   </mu-dialog>
 
-  <mu-dialog :open="show_send_img_confirm" @close="show_send_img_confirm=false" title="确定要发送这张图吗？">
+  <mu-dialog :open="show_send_img_confirm" @close="show_send_img_confirm=false" title="确定要发送这张图吗？" scrollable>
     <img :src="base64_img" style="width:100%">
     <mu-flat-button slot="actions" @click="show_send_img_confirm=false"  label="取消"/>
     <mu-flat-button label="确定" slot="actions" primary @click="sendBase64Image()"/>

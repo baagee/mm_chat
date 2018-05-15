@@ -1,6 +1,7 @@
 <template>
     <div class="login_box" style="text-align:left">
-<div>
+<div style="    height: 85%;
+    overflow-y: auto;">
     <h3>1：关于发送消息的快捷键</h3>
     <p>
       你不能使用回车（enter）来发送，请使用ctrl+enter(回车)来发送，因为回车是输入框的换行，所以你只能用ctrl+enter快捷键来发送消息了

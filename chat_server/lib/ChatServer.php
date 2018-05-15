@@ -19,7 +19,6 @@ class ChatServer
     const REDIS_ONLINE_USERS_KEY = 'online_users';
     const TULING_API = 'openapi.tuling123.com';
     const TULING_API_PATH = '/openapi/api/v2';
-    const TULING_API_KEY = 'fc48aee50a9a46f888379777d133631b';
 
     public function __construct($conf)
     {

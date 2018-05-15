@@ -17,8 +17,8 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   Vue.prototype.$qs = Qs
 
   // 在这里配置你的服务器地址
-  // const HOST = 'chat.baagee.vip'
-  const HOST = '192.168.117.142'
+  const HOST = 'chat.baagee.vip'
+  // const HOST = '192.168.117.142'
   const BASE_URL = 'http://' + HOST
   Axios.defaults.baseURL = BASE_URL
   Axios.defaults.withCredentials = true

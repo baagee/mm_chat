@@ -2,7 +2,7 @@
 <div class="login_box" >
     <alert :alert_open="alert_open" :alert_msg="alert_msg" @closeAlert='alert_open=false'></alert>
 <div style="padding-top:8%;">
-  <h1 style='color:#7e57c2'>秋名山</h1>
+  <h1 style='color:#7e57c2'>秋名山-入口处</h1>
   <div style="
   height: 200px;  
   ">
