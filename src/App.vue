@@ -394,41 +394,7 @@ export default {
             reader.readAsDataURL(blob);
           }
         }
-        //  else {
-        //   //for firefox
-        //   setTimeout(() => {
-        //     //设置setTimeout的原因是为了保证图片先插入到div里，然后去获取值
-        //     var imgList = document.querySelectorAll("#tar_box img"),
-        //       len = imgList.length,
-        //       src_str = "",
-        //       i;
-        //     for (i = 0; i < len; i++) {
-        //       if (imgList[i].className !== "my_img") {
-        //         //如果是截图那么src_str就是base64 如果是复制的其他网页图片那么src_str就是此图片在别人服务器的地址
-        //         src_str = imgList[i].src;
-        //       }
-        //     }
-        //                   console.log(222);
-        //     this.uploadBase64Image(src_str);
-        //   }, 1);
-        // }
       }
-      //  else {
-      //   //for ie11
-      //   setTimeout(() => {
-      //     var imgList = document.querySelectorAll("#tar_box img"),
-      //       len = imgList.length,
-      //       src_str = "",
-      //       i;
-      //     for (i = 0; i < len; i++) {
-      //       if (imgList[i].className !== "my_img") {
-      //         src_str = imgList[i].src;
-      //       }
-      //     }
-      //                     console.log(333);
-      //     this.uploadBase64Image(src_str);
-      //   }, 1);
-      // }
     });
   }
 };
