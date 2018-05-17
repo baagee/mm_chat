@@ -19,6 +19,7 @@ npm run build --report
 
 #### upload_api文件夹的upload.php为文件上传接口，chat_server文件夹的脚本为提供websocket服务端的脚本，在php cli模式下运行
 
+- 需要安装redis，安装php_redis扩展，安装swoole扩展
 - 运行前请配置chat_server/run.php里面的图灵机器人apiKey(tuling_robot_apikey)
 - 配置upload_api/public/upload.php里面的腾讯对象存储参数，如下：
 
