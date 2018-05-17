@@ -75,7 +75,7 @@
           <div style='font-size:12px;color:rgba(0,0,0,.54);text-align:right;margin-bottom:3px' v-if="chat.self">[{{chat.time}}] {{chat.nickname}}</div>
           <div style='font-size:12px;color:rgba(0,0,0,.54);margin-bottom:3px' v-else>{{chat.nickname}} [{{chat.time}}]</div>
                     <span class="content" @click="chat.type=='img'?showBigImg(chat.message):''"
-                    :style="!chat.self?'font-size:14px;':'float: right;'" 
+                    :style="!chat.self?'font-size:14px;':'float: right;background: #7e57c2;color: white;'"
                     v-html="createResponseHtmlTag(chat)">
                     </span>
         </span>
@@ -452,7 +452,8 @@ export default {
   display: inline-block;
   padding: 10px;
   background: #fff;
-  color: rgb(0, 0, 0);
+  /* color: rgb(0, 0, 0); */
+  color:#7e57c2;
   word-wrap: break-word;
   user-select: text;
   cursor: auto;
