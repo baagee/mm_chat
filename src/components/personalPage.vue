@@ -1,6 +1,6 @@
 <template>
     <div>
-        <mu-dialog :open="true" title="个人主页信息" scrollable  @close="closePersonalPage()">
+        <mu-dialog :open="true" :title="userData.nickname+' - 个人信息'" scrollable  @close="closePersonalPage()">
             <div class="index" style="padding-top: 10px; width:400px">
                 <div class="top" :style="{backgroundImage: `url(${userData.avatar})`}">
                 <div class="c">
@@ -50,7 +50,7 @@
                 </div>
                 <hr style="height:1px;border:none;border-top:1px dashed #9c9c9c;margin-bottom: 15px;"/>
                 <div>
-                    <mu-raised-button label="聊天" class="demo-raised-button" primary style="width:49%"/>
+                    <mu-raised-button label="聊天" @click="chatThis(user_id,userData.nickname,is_group?'group':'user')" class="demo-raised-button" primary style="width:49%"/>
                     <mu-raised-button label="删除" class="demo-raised-button" secondary style="width:49%"/>
                 </div>
             </div>
@@ -61,7 +61,7 @@
 <script>
     export default{
         name:"PersonalPage",
-        props:['user_id'],
+        props:['user_id','is_group'],
         data(){
             return {
                 userData:{
@@ -76,10 +76,14 @@
         methods:{
             closePersonalPage(){
                 this.$emit('closePersonalPage')
+            },
+            chatThis(id,name,flag){
+                this.$emit('closePersonalPage')                
+                this.$emit('chatThis',id,name,flag)
             }
         },
         created(){
-            console.log('获取个人信息,user_id='+this.user_id)
+            console.log('获取个人信息,user_id='+this.user_id+' is_group='+this.is_group)
         }
     }
 </script>
