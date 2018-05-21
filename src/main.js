@@ -76,7 +76,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         state.chat_list.push(chat_msg)
       },
       add_near_chat(state, chat) {
-        state.near_chat.push(chat)
+        state.near_chat.unshift(chat)
       },
       remove_near_chat(state, index) {
         state.near_chat.splice(index, 1);

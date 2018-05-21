@@ -3,6 +3,8 @@
 
 <alert :alert_open="alert_open" :alert_msg="alert_msg" @closeAlert='alert_open=false'></alert>
 
+<personal-page @closePersonalPage="show_personal_page=false" :user_id="show_user_id" v-if="show_personal_page"></personal-page>
+
   <!-- 图片放大 -->
   <mu-dialog :open="show_img" @close="show_img=false">
     <img :src="big_img" style="width:100%">
@@ -21,7 +23,7 @@
 
 <mu-appbar title="秋名山-请不要酒后开车" v-if="is_login">
   <span slot="right" style="margin-right:10px">{{myself.info.nickname}}</span>
-      <mu-avatar :src="'/static/assets/avatar/1 ('+myself.info.avatar_id+').jpg'" slot="right" />
+      <mu-avatar :src="'/static/assets/avatar/1 ('+myself.info.avatar_id+').jpg'" slot="right" style="cursor:pointer" @click='showPersonalPage(myself.info.user_id)'/>
 
   <mu-icon-menu slot="right" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'top'}"
       :targetOrigin="{horizontal: 'right', vertical: 'top'}">
@@ -54,18 +56,19 @@
     overflow-y: auto;">
           <mu-list v-if="active_tab=='nearchat'" class='nearsdgsdfg'>
             <mu-list-item style="border-bottom:1px dotted #ccc" :class="active_near_user==user.user_id||active_near_user==user.group_id?'active_near_user':''" 
-             v-for="(user,index) in near_chat" :key="index" :title="user.name" @click="user.user_id!=undefined?chatThis(user.user_id,user.name,'near'):chatThis(user.group_id,user.name,'near')">
-              <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-              <span slot="describe">
-                <span style="
+             v-for="(user,index) in near_chat" :key="index" :title="user.name" @click.stop="user.user_id!=undefined?chatThis(user.user_id,user.name,'near'):chatThis(user.group_id,user.name,'near')">
+              <mu-avatar @click='showPersonalPage(user.user_id)' :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+              
+                <span class='gdfhdfhder45' style="
     overflow: hidden;
         margin-right: 45px;
     display: block;
     text-overflow: ellipsis;
     white-space: nowrap;
     word-break: keep-all;
+        color: #9d9d9d;
                 ">dfhgdfjhdfgd是豆腐干反对fhgdfjhdfgdfhgdfjhdfg</span>
-              </span>
+                
               <div style="position: relative; right: 10px;" slot="right">
                 <!--获取到当前聊天队列，最后一条内容的time-->
                 <span>23:09:12</span>
@@ -73,6 +76,7 @@
                 <!--数据需求是为字符串-->
                 <mu-badge content="3" secondary />
               </div>
+
               <mu-icon value="close" slot="right" @click.stop="closeThisChat(user.user_id,user.group_id)" title="点击删除"/>
             </mu-list-item>
           </mu-list>
@@ -203,6 +207,7 @@ import { Toast } from "mint-ui";
 import Helper from "./components/help";
 import Login from "./components/login";
 import Alert from './components/alert';
+import PersonalPage from './components/personalPage';
 
 export default {
   name: "App",
@@ -210,11 +215,13 @@ export default {
     return {
       message: "",
       at_map: {},
+      show_user_id:'',
       // to: [],
       g_to:'',
       u_to:'',
       search_keywoyds: "",
       alert_open: false,
+      show_personal_page: false,
       alert_msg: "",
       show_emoji: false,
       show_img: false,
@@ -231,7 +238,8 @@ export default {
   components: {
     Helper,
     Login,
-    Alert
+    Alert,
+    PersonalPage
   },
   methods: {
     test(a){
@@ -247,6 +255,11 @@ export default {
     showBigImg(img_path) {
       this.show_img = true;
       this.big_img = img_path;
+    },
+    // 显示个人主页
+    showPersonalPage(user_id){
+      this.show_personal_page=true
+      this.show_user_id=user_id
     },
     createResponseHtmlTag(chat) {
       if (chat.type === "text") {
@@ -270,6 +283,7 @@ export default {
         "'\">";
       return tag;
     },
+    // 上传图片
     uploadImageHandle(param, config) {
       Indicator.open({
         text: "上传中...",
@@ -620,7 +634,8 @@ export default {
 .nearsdgsdfg .mu-item-right{
   right:30px
 }
-.nearsdgsdfg .active_near_user .mu-item-text{
-  color:rgba(255, 255, 255, 0.54);
+.nearsdgsdfg .active_near_user .gdfhdfhder45{
+  color:rgba(255, 255, 255, 0.74)!important;
 }
+
 </style>
