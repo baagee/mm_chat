@@ -18,7 +18,8 @@
 
 <helper @closeHelper='closeHelper' v-if="show_help"></helper>
 
-<login v-if="!is_login" ></login>
+<login @register="is_register=true" v-if="!is_login && is_register==false"></login>
+<register @login="is_register=false" v-if="is_register" ></register>
 
 
 <mu-appbar title="秋名山-请不要酒后开车" v-if="is_login">
@@ -203,6 +204,7 @@ import { Toast } from "mint-ui";
 
 import Helper from "./components/help";
 import Login from "./components/login";
+import Register from "./components/register";
 import Alert from './components/alert';
 import PersonalPage from './components/personalPage';
 
@@ -230,14 +232,16 @@ export default {
       to_chat_nickname:'',
       active_near_user:'',
       active_chat_list:[],
-      is_group:false
+      is_group:false,
+      is_register:false
     };
   },
   components: {
     Helper,
     Login,
     Alert,
-    PersonalPage
+    PersonalPage,
+    Register
   },
   methods: {
     test(a){

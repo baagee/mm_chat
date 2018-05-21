@@ -2,11 +2,11 @@
 <div class="login_box" >
     <alert :alert_open="alert_open" :alert_msg="alert_msg" @closeAlert='alert_open=false'></alert>
 <div style="padding-top:8%;">
-  <h1 style='color:#7e57c2'>秋名山-入口处</h1>
+  <h1 style='color:#7e57c2'>秋名山-登录</h1>
   <div style="
   height: 200px;  
   ">
-  <div v-show="header_select_box" ref="header_select_box" style="
+  <!-- <div v-show="header_select_box" ref="header_select_box" style="
   height: 200px;
   overflow: auto;
   width: 300px;
@@ -18,15 +18,24 @@
         <img :src="'/static/assets/avatar/1 ('+item+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;" @click="selectThisAvatar(item)">
 </span>
   <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
-  </div>
-        <img @click="header_select_box=true" v-show="!header_select_box" :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;" title="点击我选择头像哦">
+  </div> -->
+  <!-- logo -->
+        <img :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;">
   </div>
 </div>
 
-<div style="margin-top:3%">
-  <mu-text-field label="输入昵称" labelFloat v-model="my_nickname" @keyup.native.enter="login()"/>
+<div>
+  <mu-text-field label="输入邮箱" type="email" :errorText="email_error" labelFloat v-model="my_nickname" @keyup.native.enter="login()"/>
   <br>
-  <mu-raised-button label="开始聊天" class="demo-raised-button" primary @click="login()"/>
+  <mu-text-field label="输入密码" type="password" :errorText="password_error" labelFloat v-model="my_password" @keyup.native.enter="login()"/>
+  <br>
+  <mu-raised-button label="登录" class="demo-raised-button" primary @click="login()"/>
+  <br>
+  <a style="
+  margin-top: 10px;
+        display: inline-block;  
+    cursor: pointer;
+  " @click="register()">注册</a>
 </div>
 </div>
 </template>
@@ -52,7 +61,10 @@ export default {
       scroller: "",
       header_loading: false,
       alert_open:false,
-      alert_msg:''
+      alert_msg:'',
+      my_password:'',
+      password_error:'',
+      email_error:''
     };
   },
   methods: {
@@ -69,6 +81,9 @@ export default {
         this.alert_open = true;
         this.alert_msg = "昵称太长，不要超过4个汉字或者8个英文字符";
       }
+    },
+    register(){
+      this.$emit('register')
     },
     loginHandle() {
       /*
