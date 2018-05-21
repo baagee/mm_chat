@@ -52,10 +52,27 @@
       <div style="background-color: rgb(241, 241, 241);
     height: 100%;
     overflow-y: auto;">
-          <mu-list v-if="active_tab=='nearchat'">
+          <mu-list v-if="active_tab=='nearchat'" class='nearsdgsdfg'>
             <mu-list-item style="border-bottom:1px dotted #ccc" :class="active_near_user==user.user_id||active_near_user==user.group_id?'active_near_user':''" 
              v-for="(user,index) in near_chat" :key="index" :title="user.name" @click="user.user_id!=undefined?chatThis(user.user_id,user.name,'near'):chatThis(user.group_id,user.name,'near')">
               <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+              <span slot="describe">
+                <span style="
+    overflow: hidden;
+        margin-right: 45px;
+    display: block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-break: keep-all;
+                ">dfhgdfjhdfgd是豆腐干反对fhgdfjhdfgdfhgdfjhdfg</span>
+              </span>
+              <div style="position: relative; right: 10px;" slot="right">
+                <!--获取到当前聊天队列，最后一条内容的time-->
+                <span>23:09:12</span>
+                <!--数据条数-->
+                <!--数据需求是为字符串-->
+                <mu-badge content="3" secondary />
+              </div>
               <mu-icon value="close" slot="right" @click.stop="closeThisChat(user.user_id,user.group_id)" title="点击删除"/>
             </mu-list-item>
           </mu-list>
@@ -300,6 +317,7 @@ export default {
       if(uid!=undefined){
         var index = this.near_chat.findIndex(item => {
             if (item.user_id == uid) {
+              this.u_to='';
                 return true;
             }
         });
@@ -307,6 +325,7 @@ export default {
       if(gid!=undefined){
         var index = this.near_chat.findIndex(item => {
             if (item.group_id == gid) {
+              this.g_to='';
                 return true;
             }
         });
@@ -314,7 +333,6 @@ export default {
       console.log(index);
       
       if(index!==-1){
-              console.log(this.near_chat[index].name==this.to_chat_nickname)
         if(this.to_chat_nickname==this.near_chat[index].name){
           this.to_chat_nickname=''
           console.log(this.to_chat_nickname)
@@ -598,5 +616,11 @@ export default {
 }
 .group_list .mu-item-right{
   right:25px;
+}
+.nearsdgsdfg .mu-item-right{
+  right:30px
+}
+.nearsdgsdfg .active_near_user .mu-item-text{
+  color:rgba(255, 255, 255, 0.54);
 }
 </style>
