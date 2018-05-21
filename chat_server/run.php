@@ -6,7 +6,7 @@
 
 include_once './lib/ChatServer.php';
 
-
+date_default_timezone_set('PRC');
 $conf = [
     'redis' => [
         'host' => '127.0.0.1',

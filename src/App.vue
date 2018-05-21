@@ -34,7 +34,7 @@
 
 
 <mu-row gutter>
-    <mu-col width="100" tablet="40" desktop="30"  style="position: absolute;height: 100%;padding-bottom: 105px;">
+    <mu-col width="100" tablet="40" desktop="30"  style="position: absolute;height: 100%;padding-bottom: 150px;">
       <div style="width:100%">
         <input type="text" v-model="search_keywoyds" placeholder="搜索在线用户" style="
         width: 100%;
@@ -42,12 +42,16 @@
     margin: 3px 0;
     border: 1px solid #f1f1f1;
     padding-left: 10px;">
+    <mu-tabs :value="activeTab" @change="handleTabChange" style="border-bottom: 1px solid white;">
+      <mu-tab value="groups" title="分组"/>
+      <mu-tab value="friends" title="好友"/>
+    </mu-tabs>
       </div>
 
       <div style="background-color: rgb(241, 241, 241);
     height: 100%;
     overflow-y: auto;">
-          <mu-list>
+          <mu-list v-if="activeTab=='friends'">
             <mu-list-item style="border-bottom:1px dotted #ccc;"  title="机器人-小希">
               <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
               <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
@@ -55,6 +59,59 @@
             <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
               <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
               <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
+            </mu-list-item>
+          </mu-list>
+
+          <mu-list v-if="activeTab=='groups'">
+            <mu-list-item title="分组1" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
+              <!-- <mu-icon slot="left" value="inbox"/> -->
+              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
+                <!-- <mu-icon slot="left" value="grade"/> -->
+                <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+                <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
+              </mu-list-item>
+
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+                <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+                <!-- <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/> -->
+                <mu-icon-menu slot="right" icon="more_vert">
+                  <!--  tooltip="操作" -->
+                  <mu-menu-item title="加好友" />
+                  <!-- <mu-menu-item title="标记" />
+                  <mu-menu-item title="删除" /> -->
+                </mu-icon-menu>
+              </mu-list-item>
+            </mu-list-item>
+
+            <mu-list-item title="分组2" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
+              <!-- <mu-icon slot="left" value="inbox"/> -->
+              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
+                <!-- <mu-icon slot="left" value="grade"/> -->
+                <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+                <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
+              </mu-list-item>
+
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+                <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+                <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
+              </mu-list-item>
+            </mu-list-item>
+
+            <mu-list-item title="分组3" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
+              <!-- <mu-icon slot="left" value="inbox"/> -->
+              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
+                <!-- <mu-icon slot="left" value="grade"/> -->
+                <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+                <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
+              </mu-list-item>
+
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+                <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+                <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
+              </mu-list-item>
             </mu-list-item>
           </mu-list>
       </div>
@@ -67,7 +124,14 @@
     overflow-y: auto;
         background-color: #f1f1f1;
     border: 1px solid #f1f1f1;height:100%;">
-    
+    <div style="    background-color: #f1f1f1;
+    height: 30px;
+    text-align: center;
+    font-size: 20px;
+    line-height: 30px;
+    border-bottom: 2px solid #fff;">
+    {{to_chat_nickname}}
+    </div>
 
     <mu-list-item :disableRipple="true" v-for="(chat,index) in chat_list" :key="index">
         <mu-avatar :src="'/static/assets/avatar/1 ('+chat.avatar_id+').jpg'" :slot="chat.self ? 'rightAvatar':'leftAvatar'" />
@@ -150,7 +214,9 @@ export default {
     return {
       message: "",
       at_map: {},
-      to: [],
+      // to: [],
+      g_to:'',
+      u_to:'',
       search_keywoyds: "",
       alert_open: false,
       alert_msg: "",
@@ -159,7 +225,9 @@ export default {
       big_img: "",
       show_help: false,
       show_send_img_confirm: false,
-      base64_img: ""
+      base64_img: "",
+      activeTab:'friends',
+      to_chat_nickname:''
     };
   },
   components: {
@@ -168,6 +236,9 @@ export default {
     Alert
   },
   methods: {
+    handleTabChange(val){
+      this.activeTab=val
+    },
     closeHelper() {
       this.show_help = false;
     },
@@ -278,13 +349,15 @@ export default {
     },
     // 和这个人聊天
     chatThis(id, nickname) {
-      if (id == this.myself.info.user_id) {
-        return false;
-      }
-      if (this.message.indexOf("@" + nickname) == -1) {
-        this.at_map["@" + nickname] = id;
-        this.message += "@" + nickname + " ";
-      }
+      // if (id == this.myself.info.user_id) {
+      //   return false;
+      // }
+      // if (this.message.indexOf("@" + nickname) == -1) {
+      //   this.at_map["@" + nickname] = id;
+      //   this.message += "@" + nickname + " ";
+      // }
+      this.to_chat_nickname=nickname
+      this.u_to=id;
       document.getElementsByClassName("mu-text-field-textarea")[0].focus();
     },
     // 发送消息
@@ -468,5 +541,14 @@ export default {
 }
 .one_header:hover {
   background-color: rebeccapurple;
+}
+.mu-tabs{
+  background-color: #f1f1f1!important;
+}
+.mu-tab-active {
+    color: #7e57c2!important;
+}
+.mu-tab-link{
+  color:#000;
 }
 </style>
