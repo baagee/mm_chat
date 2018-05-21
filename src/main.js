@@ -36,7 +36,36 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         info: {
         },
       },
-      chat_list: [
+      chat_list: {
+        'group': {
+          g_1:[
+            {
+              'nickname':'哈哈哈',
+              avatar_id:23,
+              time:'09:12:23',
+              user_id:1
+            }
+          ]
+        },
+        'user':{
+          user_52:[
+            {
+              'nickname':'哈哈哈',
+                avatar_id:23,
+                time:'09:12:23',
+                user_id:1,
+                message:'合适的过得好不好山东话啥的格式'
+            }
+          ]
+        }
+      },
+      near_chat:[
+        {
+          name:'哈哈哈',
+          avatar_id:45,
+          user_id:34,
+          group_id:null,
+        }
       ]
     },
     mutations: {
@@ -45,6 +74,12 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
       },
       add_chat_msg(state, chat_msg) {
         state.chat_list.push(chat_msg)
+      },
+      add_near_chat(state, chat) {
+        state.near_chat.push(chat)
+      },
+      remove_near_chat(state, index) {
+        state.near_chat.splice(index, 1);
       },
       set_myself_info(state, myself_info) {
         state.myself.info = myself_info
@@ -142,7 +177,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           // 解析表情
           getMsg.message.message = Tools.convert(getMsg.message.message)
         }
-        if (getMsg.message.message.indexOf('@'+store.state.myself.info.nickname) !== -1) {
+        if (getMsg.message.message.indexOf('@' + store.state.myself.info.nickname) !== -1) {
           getMsg.message['at_you'] = true;
         }
         if ('at_you' in getMsg.message) {

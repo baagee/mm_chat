@@ -42,39 +42,48 @@
     margin: 3px 0;
     border: 1px solid #f1f1f1;
     padding-left: 10px;">
-    <mu-tabs :value="activeTab" @change="handleTabChange" style="border-bottom: 1px solid white;">
+    <mu-tabs :value="active_tab" @change="handleTabChange" style="border-bottom: 1px solid white;">
+      <mu-tab value="nearchat" title="最近"/>
+      <mu-tab value="friends" title="好友"/>      
       <mu-tab value="groups" title="分组"/>
-      <mu-tab value="friends" title="好友"/>
     </mu-tabs>
       </div>
 
       <div style="background-color: rgb(241, 241, 241);
     height: 100%;
     overflow-y: auto;">
-          <mu-list v-if="activeTab=='friends'">
-            <mu-list-item style="border-bottom:1px dotted #ccc;"  title="机器人-小希">
-              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-              <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
-            </mu-list-item>
-            <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+          <mu-list v-if="active_tab=='nearchat'">
+            <mu-list-item style="border-bottom:1px dotted #ccc" :class="active_near_user==user.user_id||active_near_user==user.group_id?'active_near_user':''" 
+             v-for="(user,index) in near_chat" :key="index" :title="user.name" @click="user.user_id!=undefined?chatThis(user.user_id,user.name,'near'):chatThis(user.group_id,user.name,'near')">
               <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-              <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
+              <mu-icon value="close" slot="right" @click.stop="closeThisChat(user.user_id,user.group_id)" title="点击删除"/>
             </mu-list-item>
           </mu-list>
 
-          <mu-list v-if="activeTab=='groups'">
-            <mu-list-item title="分组1" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
-              <!-- <mu-icon slot="left" value="inbox"/> -->
+          <mu-list v-if="active_tab=='friends'">
+            <mu-list-item style="border-bottom:1px dotted #ccc;"  title="机器人-小希">
               <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+              <!-- todo -->
+              <!-- <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希','user')" title="点击@我哦"/> -->
+            </mu-list-item>
+            <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
+              <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+              <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname,'user')" title="点击@我哦"/>
+            </mu-list-item>
+          </mu-list>
+
+          <mu-list class="group_list" v-if="active_tab=='groups'">
+
+            <mu-list-item title="分组1"  toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
+              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
+                <mu-icon value="chat_bubble" slot="right"  title="点击开始群聊" @click.stop="chatThis(90,'群聊','group')"/>         
               <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
-                <!-- <mu-icon slot="left" value="grade"/> -->
                 <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
                 <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
               </mu-list-item>
 
               <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
                 <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-                <!-- <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/> -->
                 <mu-icon-menu slot="right" icon="more_vert">
                   <!--  tooltip="操作" -->
                   <mu-menu-item title="加好友" />
@@ -84,35 +93,6 @@
               </mu-list-item>
             </mu-list-item>
 
-            <mu-list-item title="分组2" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
-              <!-- <mu-icon slot="left" value="inbox"/> -->
-              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
-                <!-- <mu-icon slot="left" value="grade"/> -->
-                <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-                <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
-              </mu-list-item>
-
-              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
-                <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-                <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
-              </mu-list-item>
-            </mu-list-item>
-
-            <mu-list-item title="分组3" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
-              <!-- <mu-icon slot="left" value="inbox"/> -->
-              <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
-                <!-- <mu-icon slot="left" value="grade"/> -->
-                <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-                <mu-icon value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
-              </mu-list-item>
-
-              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
-                <mu-avatar :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-                <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname)" title="点击@我哦"/>
-              </mu-list-item>
-            </mu-list-item>
           </mu-list>
       </div>
   
@@ -129,11 +109,10 @@
     text-align: center;
     font-size: 20px;
     line-height: 30px;
-    border-bottom: 2px solid #fff;">
-    {{to_chat_nickname}}
+    border-bottom: 2px solid #fff;" v-text="to_chat_nickname">
     </div>
 
-    <mu-list-item :disableRipple="true" v-for="(chat,index) in chat_list" :key="index">
+    <mu-list-item :disableRipple="true" v-for="(chat,index) in active_chat_list" :key="index">
         <mu-avatar :src="'/static/assets/avatar/1 ('+chat.avatar_id+').jpg'" :slot="chat.self ? 'rightAvatar':'leftAvatar'" />
         <span :slot="chat.self ? 'after':'title'" style="width:100%">
           <div style='font-size:12px;color:rgba(0,0,0,.54);text-align:right;margin-bottom:3px' v-if="chat.self">[{{chat.time}}] {{chat.nickname}}</div>
@@ -226,8 +205,10 @@ export default {
       show_help: false,
       show_send_img_confirm: false,
       base64_img: "",
-      activeTab:'friends',
-      to_chat_nickname:''
+      active_tab:'nearchat',
+      to_chat_nickname:'',
+      active_near_user:'',
+      active_chat_list:[]
     };
   },
   components: {
@@ -236,8 +217,11 @@ export default {
     Alert
   },
   methods: {
+    test(a){
+      alert(a)
+    },
     handleTabChange(val){
-      this.activeTab=val
+      this.active_tab=val
     },
     closeHelper() {
       this.show_help = false;
@@ -254,6 +238,8 @@ export default {
         var tag = '<a target="_blank" href="' + chat.message + '">点击查看</a>';
       } else if (chat.type == "img") {
         var tag = this.createImgTag(chat.message);
+      }else{
+        var tag = chat.message;
       }
       return tag;
     },
@@ -308,6 +294,33 @@ export default {
           console.log(error);
           alert("抱歉，出现未知错误");
         });
+    },  
+    // 关闭聊天窗口
+    closeThisChat(uid,gid){
+      if(uid!=undefined){
+        var index = this.near_chat.findIndex(item => {
+            if (item.user_id == uid) {
+                return true;
+            }
+        });
+      }
+      if(gid!=undefined){
+        var index = this.near_chat.findIndex(item => {
+            if (item.group_id == gid) {
+                return true;
+            }
+        });
+      }
+      console.log(index);
+      
+      if(index!==-1){
+              console.log(this.near_chat[index].name==this.to_chat_nickname)
+        if(this.to_chat_nickname==this.near_chat[index].name){
+          this.to_chat_nickname=''
+          console.log(this.to_chat_nickname)
+        }
+        this.$store.commit('remove_near_chat',index)
+      }
     },
     // 上传图片
     uploadImage(e) {
@@ -348,16 +361,38 @@ export default {
       return re;
     },
     // 和这个人聊天
-    chatThis(id, nickname) {
-      // if (id == this.myself.info.user_id) {
-      //   return false;
-      // }
-      // if (this.message.indexOf("@" + nickname) == -1) {
-      //   this.at_map["@" + nickname] = id;
-      //   this.message += "@" + nickname + " ";
-      // }
-      this.to_chat_nickname=nickname
-      this.u_to=id;
+    chatThis(id, name,flag) {
+      this.active_tab='nearchat'
+      console.log(id)
+      var near=null;
+      this.to_chat_nickname=name
+      this.active_near_user=id
+      if(flag!='near'){
+        near={
+          name:name,
+          avatar_id:45,
+        }
+      }
+      if(flag=='group'){
+        var tmp='group_'+id;
+        this.active_chat_list=eval('this.chat_list.group.'+tmp)
+        this.g_to=id;
+        near.group_id=id
+      }else if(flag=='user'){
+        var tmp='user_'+id;
+        this.active_chat_list=eval('this.chat_list.user.'+tmp)
+        this.u_to=id;
+        near.user_id=id        
+      }
+      
+      if(flag!='near'){
+        for (var tmpp in this.near_chat) {
+          if(this.near_chat[tmpp].user_id==id || this.near_chat[tmpp].group_id==id){
+            return false;
+          }
+        }
+        this.$store.commit('add_near_chat',near)
+      }
       document.getElementsByClassName("mu-text-field-textarea")[0].focus();
     },
     // 发送消息
@@ -424,7 +459,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(["online_users", "chat_list", "myself", "is_login"])
+    ...mapState(["online_users", "chat_list", "myself", "is_login","near_chat"])
   },
   watch: {
     chat_list: "scrollToBottom"
@@ -550,5 +585,18 @@ export default {
 }
 .mu-tab-link{
   color:#000;
+}
+.active_near_user{
+  background-color: #7e57c2;
+}
+.active_near_user .mu-item.has-avatar{
+  color:#fff;
+}
+
+.active_near_user .mu-item-right{
+  color:#fff;
+}
+.group_list .mu-item-right{
+  right:25px;
 }
 </style>
