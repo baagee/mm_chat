@@ -30,7 +30,46 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   const store = new Vuex.Store({
     state: {
       is_login: false,
-      online_users: [
+      friends: [
+        {
+          nickname: '哈哈哈',
+          avatar: 'dgsdgfd',
+          user_id: 23,
+          fd: 9,
+          online: true,
+        },
+        {
+          nickname: '嘿嘿嘿',
+          avatar: 'dgsdgfd',
+          user_id: 22,
+          fd: null,// 只有在线用户才有fd
+          online: false,
+        }
+      ],
+      groups: [
+        {
+          name: '分组1',
+          group_id: 90,
+          avatar: 'sfghsdfhd',
+          users: [
+            {
+              nickname: '嘿嘿嘿',
+              avatar: 'dgsdgfd',
+              user_id: 22,
+              fd: null,
+              // online: true,
+              // is_friend:true
+            },
+            {
+              nickname: '8883',
+              avatar: 'dgsdgfd',
+              user_id: 56,
+              fd: 67,
+              // online: true,
+              // is_friend:false              
+            },
+          ]
+        }
       ],
       myself: {
         info: {
@@ -38,39 +77,64 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
       },
       chat_list: {
         'group': {
-          g_1:[
+          group_1: [
             {
-              'nickname':'哈哈哈',
-              avatar_id:23,
-              time:'09:12:23',
-              user_id:1
-            }
+              'nickname': '哈哈哈',
+              avatar_id: 23,
+              time: '09:12:23',
+              user_id: 1,
+              online: true
+            },
+            {
+              'nickname': '嘿嘿嘿',
+              avatar_id: 23,
+              time: '09:12:23',
+              user_id: 2,
+              online: false
+            },
           ]
         },
-        'user':{
-          user_52:[
+        'user': {
+          user_52: [
             {
-              'nickname':'哈哈哈',
-                avatar_id:23,
-                time:'09:12:23',
-                user_id:1,
-                message:'合适的过得好不好山东话啥的格式'
+              nickname: '哈哈哈',
+              avatar_id: 23,
+              time: '09:12:23',
+              user_id: 1,
+              message: '合适的过得好不好山东话啥的格式',
+              online: true
             }
-          ]
+          ],
+          user_166: [
+            {
+              nickname: '嘿嘿嘿',
+              avatar_id: 23,
+              time: '09:12:23',
+              user_id: 1,
+              message: '合适的过得好不好山东话啥的格式',
+              online: true
+            }
+          ],
         }
       },
-      near_chat:[
+      near_chat: [
         {
-          name:'哈哈哈',
-          avatar_id:45,
-          user_id:34,
-          group_id:null,
-        }
+          name: '哈哈哈',
+          avatar: 'http://localhost:8080/static/assets/avatar/1%20(248).jpg',
+          user_id: 34,
+          group_id: null,
+        },
+        {
+          name: '哈分组1',
+          avatar: 'http://localhost:8080/static/assets/avatar/1%20(249).jpg',
+          user_id: null,
+          group_id: 2,
+        },
       ]
     },
     mutations: {
-      add_online_user(state, user) {
-        state.online_users.unshift(user)
+      add_online_friends(state, user) {
+        // state.friends.unshift(user)
       },
       add_chat_msg(state, chat_msg) {
         state.chat_list.push(chat_msg)
@@ -133,7 +197,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
       var user = {};
       online_users.forEach(user => {
         user = JSON.parse(user);
-        store.commit("add_online_user", user);
+        // store.commit("add_online_user", user);
       });
       store.commit("set_is_login", true);
       store.commit("set_myself_info", getMsg.myself);

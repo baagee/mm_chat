@@ -6,19 +6,8 @@
     <div style="
     height: 200px;  
     ">
-    <input type="file" style="
-    position: absolute;
-    z-index: 100;
-    cursor: pointer;
-    font-size: 0px;
-    opacity: 0; 
-    left:45%;
-    width: 140px;
-    height: 140px;
-    top: 140px;"  @change="uploadImage" accept="image/jpeg,image/jpg,image/png">
-    <p style="color:#a7a6a6;font-size:16px">选择头像</p>
-        <img :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="border-radius:50%;cursor:pointer;border: 1px solid #ccc;">
-
+        <img :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;">
+    
     <div>
       <mu-text-field label="输入邮箱" type="email" :errorText="email_error" labelFloat v-model="my_emailname" @keyup.native.enter="register()"/>
       <br>
@@ -77,6 +66,11 @@ export default {
   mounted() {
     // 获取随机数
     this.avatar_id = localStorage.getItem("avatar_id");
+    if (this.avatar_id == null) {
+      // 没有随机数 就生成
+      this.avatar_id = parseInt(Math.random() * 259) + 1;
+      localStorage.setItem("avatar_id", this.avatar_id);
+    }
   }
 };
 </script>

@@ -14,7 +14,7 @@
                 <div class="content">
                     <div class="item">
                         <div>
-                        <mu-list-item title="Phone"
+                        <mu-list-item title="性别"
                                         :describeText="userData.phone"
                                         disabled>
                             <mu-icon value="voicemail"
@@ -26,7 +26,7 @@
                 
                     <div class="item">
                         <div>
-                        <mu-list-item title="Region"
+                        <mu-list-item title="地址"
                                         :describeText="userData.address"
                                         disabled>
                             <mu-icon value="location_on"
@@ -38,8 +38,32 @@
                 
                     <div class="item">
                         <div>
-                        <mu-list-item title="Birthday"
+                        <mu-list-item title="生日"
                                         :describeText="userData.birthday"
+                                        disabled>
+                            <mu-icon value="cake"
+                                    color="#2e2c6b"
+                                    slot="left" />
+                        </mu-list-item>
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div>
+                        <mu-list-item title="标签"
+                                        :describeText="userData.tags"
+                                        disabled>
+                            <mu-icon value="cake"
+                                    color="#2e2c6b"
+                                    slot="left" />
+                        </mu-list-item>
+                        </div>
+                    </div>
+
+                    <div class="item">
+                        <div>
+                        <mu-list-item title="简介"
+                                        :describeText="userData.remark"
                                         disabled>
                             <mu-icon value="cake"
                                     color="#2e2c6b"
@@ -68,8 +92,9 @@
                     nickname:'的方式',
                     birthday:'2019:09:09',
                     address:'sdfghdf',
-                    phone:'46346345',
-                    avatar:'http://localhost:8080/static/assets/avatar/1%20(45).jpg'
+                    avatar:'http://localhost:8080/static/assets/avatar/1%20(45).jpg',
+                    tags:'4534,3645,45675',
+                    remark:'无俄日呕吐问题已经俄洛伊回家诶而退藕越塔家咯你无俄日呕吐问题已经俄洛伊回家诶而退藕越塔家咯你无俄日呕吐问题已经俄洛伊回家诶而退藕越塔家咯你无俄日呕吐问题已经俄洛伊回家诶而退藕越塔家咯你'
                 }
             }
         },
@@ -95,17 +120,16 @@
     background-size: cover
 }
 .c{
-      width: 100%;
-      text-align: center;
-          /* border-bottom: 1px dotted #9c9c9c; */
+    width: 100%;
+    text-align: center;
 }
 .name{
     display:block;
     color:#000;
 }
 .mu-tab-link-highlight{
-        display: none!important;
-            background-color: #ffffff;
+    display: none!important;
+    background-color: #ffffff;
 }
 </style>
 

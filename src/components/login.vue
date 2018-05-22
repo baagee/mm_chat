@@ -6,19 +6,6 @@
   <div style="
   height: 200px;  
   ">
-  <!-- <div v-show="header_select_box" ref="header_select_box" style="
-  height: 200px;
-  overflow: auto;
-  width: 300px;
-  -webkit-overflow-scrolling: touch;
-  border: 1px solid #d9d9d9;
-  display:inline-block;
-">
-<span class="one_header" v-for="(item,index) in header_list" :key="index">
-        <img :src="'/static/assets/avatar/1 ('+item+').jpg'" width="80px;" style="border-radius:50%;cursor:pointer;" @click="selectThisAvatar(item)">
-</span>
-  <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
-  </div> -->
   <!-- logo -->
         <img :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;">
   </div>
@@ -48,18 +35,9 @@ export default {
       Alert
   },
   data() {
-    const header_list = [];
-    for (let i = 1; i <= 20; i++) {
-      header_list.push(i);
-    }
     return {
-      header_list,
-      header_num_s: 20,
-      header_select_box: false,
       my_nickname: "",
       avatar_id: 1,
-      scroller: "",
-      header_loading: false,
       alert_open:false,
       alert_msg:'',
       my_password:'',
@@ -127,8 +105,6 @@ export default {
     },
   },
   mounted() {
-    this.scroller = this.$refs.header_select_box;
-
     // 获取随机数
     this.avatar_id = localStorage.getItem("avatar_id");
     if (this.avatar_id == null) {

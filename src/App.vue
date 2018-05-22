@@ -28,7 +28,7 @@
 
   <mu-icon-menu slot="right" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'top'}"
       :targetOrigin="{horizontal: 'right', vertical: 'top'}">
-    <!-- <mu-menu-item title="设置" leftIcon="settings" /> -->
+    <mu-menu-item title="添加好友" leftIcon="settings" />
     <mu-menu-item title="帮助" leftIcon="help_outline" @click="show_help=true"/>
     <mu-divider />
     <mu-menu-item title="退出" leftIcon="power_settings_new" @click="logout()"/>
@@ -39,7 +39,7 @@
 <mu-row gutter>
     <mu-col width="100" tablet="40" desktop="30"  style="position: absolute;height: 100%;padding-bottom: 150px;">
       <div style="width:100%">
-        <input type="text" v-model="search_keywoyds" placeholder="搜索在线用户" style="
+        <input type="text" v-model="search_keywoyds" :placeholder="searchPlaceHolder" style="
         width: 100%;
     height: 35px;
     margin: 3px 0;
@@ -59,7 +59,7 @@
           <mu-list v-if="active_tab=='nearchat'" class='nearsdgsdfg'>
             <mu-list-item style="border-bottom:1px dotted #ccc" :class="active_near_user==user.user_id||active_near_user==user.group_id?'active_near_user':''" 
              v-for="(user,index) in near_chat" :key="index" :title="user.name" @click.stop="user.user_id!=undefined?chatThis(user.user_id,user.name,'near'):chatThis(user.group_id,user.name,'near')">
-              <mu-avatar @click='user.user_id!=undefined?showPersonalPage(user.user_id,false):showPersonalPage(user.group_id,true)' :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
+              <mu-avatar @click='user.user_id!=undefined?showPersonalPage(user.user_id,false):showPersonalPage(user.group_id,true)' :src="user.avatar" slot="leftAvatar"/>
               
                 <span class='gdfhdfhder45' style="
     overflow: hidden;
@@ -72,10 +72,7 @@
                 ">dfhgdfjhdfgd是豆腐干反对fhgdfjhdfgdfhgdfjhdfg</span>
                 
               <div style="position: relative; right: 10px;" slot="right">
-                <!--获取到当前聊天队列，最后一条内容的time-->
                 <span>23:09:12</span>
-                <!--数据条数-->
-                <!--数据需求是为字符串-->
                 <mu-badge content="3" secondary />
               </div>
 
@@ -86,29 +83,26 @@
           <!-- 我的好友 -->
           <mu-list v-if="active_tab=='friends'">
             <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
-              <mu-avatar @click="showPersonalPage(user.user_id,false)" :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-              <mu-icon value="chat_bubble" v-show="user.user_id!=myself.info.user_id" slot="right" @click="chatThis(user.user_id,user.nickname,'user')" title="点击@我哦"/>
+              <mu-avatar @click="showPersonalPage(user.user_id,false)" :src="user.avatar" slot="leftAvatar"/>
+              <mu-icon value="chat_bubble" v-show="user.online" slot="right" @click="chatThis(user.user_id,user.nickname,'user')" title="点击@我哦"/>
             </mu-list-item>
           </mu-list>
 
           <!-- 我的群组 -->
           <mu-list class="group_list" v-if="active_tab=='groups'">
-            <mu-list-item disabled title="分组1" toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);">
-                <mu-avatar @click="showPersonalPage(99,true)" :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar" style="cursor:pointer"/>
-                <mu-icon style="cursor:pointer" value="chat_bubble" slot="right"  title="点击开始群聊" @click.stop="chatThis(90,'群聊','group')"/>         
+            <mu-list-item disabled toggleNested :open='false' style="border-bottom: 1px dotted rgb(204, 204, 204);"
+              v-for="(group,index) in search(search_keywoyds)" :key="index" :title="group.name"
+            >
+                <mu-avatar @click="showPersonalPage(group.group_id,true)" :src="group.avatar" slot="leftAvatar" style="cursor:pointer"/>
+                <mu-icon style="cursor:pointer" value="chat_bubble" slot="right"  title="点击开始群聊" @click.stop="chatThis(group.group_id,group.name,'group')"/>         
               <mu-list-item slot="nested" style="border-top:1px dotted #ccc;" title="机器人-小希">
                 <mu-avatar :src="'/static/assets/avatar/1 (261).jpg'" slot="leftAvatar"/>
-                <mu-icon style="cursor:pointer" value="chat_bubble" slot="right" @click="chatThis(-1,'机器人-小希')" title="点击@我哦"/>
+                <mu-icon style="cursor:pointer" value="chat_bubble" slot="right" @click="atThis(-1,'机器人-小希')" title="点击@我哦"/>
               </mu-list-item>
 
-              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
-                <mu-avatar @click="showPersonalPage(user.user_id,false)" :src="'/static/assets/avatar/1 ('+user.avatar_id+').jpg'" slot="leftAvatar"/>
-                <mu-icon-menu slot="right" icon="more_vert">
-                  <!--  tooltip="操作" -->
-                  <mu-menu-item title="加好友" />
-                  <!-- <mu-menu-item title="标记" />
-                  <mu-menu-item title="删除" /> -->
-                </mu-icon-menu>
+              <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in group.users" :key="index" :title="user.nickname">
+                <mu-avatar @click="showPersonalPage(user.user_id,false)" :src="user.avatar" slot="leftAvatar"/>
+                <mu-icon style="cursor:pointer" value="chat_bubble" slot="right" @click="atThis(user.fd,user.nickname)" title="点击@我哦"/>                
               </mu-list-item>
             </mu-list-item>
 
@@ -252,6 +246,10 @@ export default {
     },
     closeHelper() {
       this.show_help = false;
+    },
+    // @这个人
+    atThis(fd,nickname){
+
     },
     // 显示大图
     showBigImg(img_path) {
@@ -459,14 +457,25 @@ export default {
     },
     // 搜索在线人员
     search(search_keywoyds) {
-      return this.online_users.filter(user => {
-        // 判断字符串是否在
-        if(user.user_id!=this.myself.info.user_id){
-          if (user.nickname.includes(search_keywoyds)) {
-            return user;
+      // 搜索好友
+      if(this.active_tab=='friends'){
+        return this.friends.filter(user => {
+          // 判断字符串是否在
+          if(user.user_id!=this.myself.info.user_id){
+            if (user.nickname.includes(search_keywoyds)) {
+              return user;
+            }
           }
-        }
-      });
+        });
+      }else if(this.active_tab=="groups"){
+        return this.groups.filter(group => {
+          console.log(group)
+          // 判断字符串是否在
+          if (group.name.includes(search_keywoyds)) {
+            return group;
+          }
+        });
+      }
     },
     // 滚动条永远在最下面
     scrollToBottom: function() {
@@ -496,7 +505,16 @@ export default {
     }
   },
   computed: {
-    ...mapState(["online_users", "chat_list", "myself", "is_login","near_chat"])
+    ...mapState([ "friends","groups", "chat_list", "myself", "is_login","near_chat"]),
+    searchPlaceHolder:function(){
+      if(this.active_tab=='groups'){
+        return '搜索群组';
+      }else if(this.active_tab=='friends'){
+        return '搜索好友';
+      }else if(this.active_tab=='nearchat'){
+        return '搜索最近联系人'
+      }
+    }
   },
   watch: {
     chat_list: "scrollToBottom"
