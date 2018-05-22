@@ -34,7 +34,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         {
           nickname: '哈哈哈',
           avatar: 'dgsdgfd',
-          user_id: 23,
+          user_id: 52,
           fd: 9,
           online: true,
         },
@@ -57,7 +57,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               avatar: 'dgsdgfd',
               user_id: 22,
               fd: null,
-              // online: true,
+              online: true,
               // is_friend:true
             },
             {
@@ -65,7 +65,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               avatar: 'dgsdgfd',
               user_id: 56,
               fd: 67,
-              // online: true,
+              online: false,
               // is_friend:false              
             },
           ]
@@ -77,20 +77,30 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
       },
       chat_list: {
         'group': {
-          group_1: [
+          group_166: [
             {
               'nickname': '哈哈哈',
-              avatar_id: 23,
+              avatar: '23',
               time: '09:12:23',
               user_id: 1,
-              online: true
+              message: '合适的过得好不好山东话啥的格式',
+              self:false
+            },
+            {
+              'nickname': '我自己',
+              avatar: '23',
+              time: '09:12:23',
+              user_id: 1,
+              message: '合适的过得好不好山东话啥的格式',
+              self:true              
             },
             {
               'nickname': '嘿嘿嘿',
-              avatar_id: 23,
+              avatar: '23',
               time: '09:12:23',
               user_id: 2,
-              online: false
+              message: '合适的过得好不好山东话啥的格式',
+              self:false                            
             },
           ]
         },
@@ -98,21 +108,29 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           user_52: [
             {
               nickname: '哈哈哈',
-              avatar_id: 23,
+              avatar: '23',
               time: '09:12:23',
               user_id: 1,
               message: '合适的过得好不好山东话啥的格式',
-              online: true
+              self:false
+            },
+            {
+              nickname: '我自己',
+              avatar: '23',
+              time: '09:19:23',
+              user_id: 14,
+              message: 'hasdjghsdf发生的风格说得很好士大夫就更好了开始',
+              self:true
             }
           ],
           user_166: [
             {
               nickname: '嘿嘿嘿',
-              avatar_id: 23,
+              avatar: '23',
               time: '09:12:23',
-              user_id: 1,
+              user_id: 12,
               message: '合适的过得好不好山东话啥的格式',
-              online: true
+              self:false
             }
           ],
         }
@@ -121,14 +139,14 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         {
           name: '哈哈哈',
           avatar: 'http://localhost:8080/static/assets/avatar/1%20(248).jpg',
-          user_id: 34,
+          user_id: 52,
           group_id: null,
         },
         {
           name: '哈分组1',
           avatar: 'http://localhost:8080/static/assets/avatar/1%20(249).jpg',
           user_id: null,
-          group_id: 2,
+          group_id: 166,
         },
       ]
     },

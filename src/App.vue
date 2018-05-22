@@ -52,31 +52,31 @@
     </mu-tabs>
       </div>
 
-      <!-- 最近联系人 -->
       <div style="background-color: rgb(241, 241, 241);
     height: 100%;
     overflow-y: auto;">
+    <!-- 最近联系人 -->
           <mu-list v-if="active_tab=='nearchat'" class='nearsdgsdfg'>
             <mu-list-item style="border-bottom:1px dotted #ccc" :class="active_near_user==user.user_id||active_near_user==user.group_id?'active_near_user':''" 
-             v-for="(user,index) in near_chat" :key="index" :title="user.name" @click.stop="user.user_id!=undefined?chatThis(user.user_id,user.name,'near'):chatThis(user.group_id,user.name,'near')">
+             v-for="(user,index) in near_chat" :key="index" :title="user.name" @click.stop="user.user_id!=undefined?chatThis(user.user_id,user.name,'user'):chatThis(user.group_id,user.name,'group')">
               <mu-avatar @click='user.user_id!=undefined?showPersonalPage(user.user_id,false):showPersonalPage(user.group_id,true)' :src="user.avatar" slot="leftAvatar"/>
               
                 <span class='gdfhdfhder45' style="
-    overflow: hidden;
-        margin-right: 45px;
-    display: block;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    word-break: keep-all;
-        color: #9d9d9d;
+                overflow: hidden;
+                margin-right: 45px;
+                display: block;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                word-break: keep-all;
+                color: #9d9d9d;
                 ">dfhgdfjhdfgd是豆腐干反对fhgdfjhdfgdfhgdfjhdfg</span>
                 
               <div style="position: relative; right: 10px;" slot="right">
                 <span>23:09:12</span>
                 <mu-badge content="3" secondary />
               </div>
-
               <mu-icon value="close" slot="right" @click.stop="closeThisChat(user.user_id,user.group_id)" title="点击删除"/>
+
             </mu-list-item>
           </mu-list>
 
@@ -84,7 +84,8 @@
           <mu-list v-if="active_tab=='friends'">
             <mu-list-item style="border-bottom:1px dotted #ccc;"  v-for="(user,index) in search(search_keywoyds)" :key="index" :title="user.nickname">
               <mu-avatar @click="showPersonalPage(user.user_id,false)" :src="user.avatar" slot="leftAvatar"/>
-              <mu-icon value="chat_bubble" v-show="user.online" slot="right" @click="chatThis(user.user_id,user.nickname,'user')" title="点击@我哦"/>
+              <mu-icon value="chat_bubble" v-show="user.online" slot="right" @click="chatThis(user.user_id,user.nickname,'user')" title="点击和我聊天哦"/>
+              <span v-show="!user.online" slot="right" style="font-size: 11px;">未上线</span>
             </mu-list-item>
           </mu-list>
 
@@ -102,7 +103,8 @@
 
               <mu-list-item slot="nested" style="border-top:1px dotted #ccc;"  v-for="(user,index) in group.users" :key="index" :title="user.nickname">
                 <mu-avatar @click="showPersonalPage(user.user_id,false)" :src="user.avatar" slot="leftAvatar"/>
-                <mu-icon style="cursor:pointer" value="chat_bubble" slot="right" @click="atThis(user.fd,user.nickname)" title="点击@我哦"/>                
+                <mu-icon v-show="user.online" style="cursor:pointer" value="chat_bubble" slot="right" @click="atThis(user.fd,user.nickname)" title="点击@我哦"/>
+              <span v-show="!user.online" slot="right" style="font-size: 11px;">未上线</span>                
               </mu-list-item>
             </mu-list-item>
 
@@ -122,7 +124,7 @@
     text-align: center;
     font-size: 20px;
     line-height: 30px;
-    border-bottom: 2px solid #fff;" v-text="to_chat_nickname">
+    border-bottom: 2px solid #fff;" v-text="to_chat_nickname+onlien_title_info">
     </div>
 
     <mu-list-item :disableRipple="true" v-for="(chat,index) in active_chat_list" :key="index">
@@ -227,7 +229,8 @@ export default {
       active_near_user:'',
       active_chat_list:[],
       is_group:false,
-      is_register:false
+      is_register:false,
+      onlien_title_info:''
     };
   },
   components: {
@@ -411,11 +414,27 @@ export default {
         this.active_chat_list=eval('this.chat_list.group.'+tmp)
         this.g_to=id;
         near.group_id=id
+        this.onlien_title_info=''
       }else if(flag=='user'){
         var tmp='user_'+id;
         this.active_chat_list=eval('this.chat_list.user.'+tmp)
         this.u_to=id;
-        near.user_id=id        
+        near.user_id=id
+          // 遍历所有好友查看是否在线
+        // 查找索引
+        var index = this.friends.findIndex(item => {
+            if (item.user_id == id) {
+                return true;
+            }
+        });
+        console.log(index)
+        if(index!==-1){
+          if(this.friends[index].online){
+            this.onlien_title_info=' [在线]'
+          }else{
+            this.onlien_title_info=' [下线]'
+          }
+        }
       }
       
       if(flag!='near'){
