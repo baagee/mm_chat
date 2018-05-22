@@ -637,8 +637,8 @@ export default {
 .mu-dialog {
   overflow-y: auto;
   max-height: 80%;
-  max-width: 75%;
-  width: auto;
+  /* max-width: 75%;
+  width: auto; */
 }
 .one_header {
   border: 1px solid #c6c6c6;

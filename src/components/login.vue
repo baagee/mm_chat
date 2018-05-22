@@ -7,14 +7,14 @@
   height: 200px;  
   ">
   <!-- logo -->
-        <img :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;">
+        <img src="/static/assets/logo.png" width="140px;" style="margin-top: 30px;">
   </div>
 </div>
 
 <div>
-  <mu-text-field label="输入邮箱" type="email" :errorText="email_error" labelFloat v-model="my_nickname" @keyup.native.enter="login()"/>
+  <mu-text-field label="输入邮箱" type="email"   labelFloat v-model="my_email" @keyup.native.enter="login()"/>
   <br>
-  <mu-text-field label="输入密码" type="password" :errorText="password_error" labelFloat v-model="my_password" @keyup.native.enter="login()"/>
+  <mu-text-field label="输入密码" type="password" labelFloat v-model="my_password" @keyup.native.enter="login()"/>
   <br>
   <mu-raised-button label="登录" class="demo-raised-button" primary @click="login()"/>
   <br>
@@ -27,7 +27,6 @@
 </div>
 </template>
 <script>
-import { Toast } from "mint-ui";
 import Alert from './alert';
 export default {
   name: "login",
@@ -36,81 +35,42 @@ export default {
   },
   data() {
     return {
-      my_nickname: "",
-      avatar_id: 1,
+      my_email: "",
       alert_open:false,
       alert_msg:'',
-      my_password:'',
-      password_error:'',
-      email_error:''
+      my_password:''
     };
   },
   methods: {
     login() {
-      var len = this.my_nickname.replace(/[\u0391-\uFFE5]/g, "aa").length;
-      console.log(len);
-      if (len > 0 && len <= 14) {
-        // 昵称合法，保存本地缓存
-        localStorage.setItem("my_nickname", this.my_nickname);
-        // 发送socket登录
-        this.loginHandle();
-      } else {
-        // 昵称太长
-        this.alert_open = true;
-        this.alert_msg = "昵称太长，不要超过4个汉字或者8个英文字符";
-      }
+      var sendData = {
+        email: this.my_email,
+        password: this.my_password
+      };
+
+      this.$axios
+        .post("/user/login", this.$qs.stringify(sendData))
+        .then(response => {
+          console.log(response.data);
+          if (response.data.err_no > 0) {
+            this.alertMsg(response.data.err_msg);
+          } else if (response.data.err_no == 0) {
+            // 登录成功set_myself_info
+            this.$store.commit('set_is_login',true)
+            this.$store.commit('open_socket',response.data.data)
+          } else {
+          }
+        })
+        .catch(error => {
+            this.alertMsg('未知错误');          
+        });
+    },
+    alertMsg(msg){
+      this.alert_open=true;
+      this.alert_msg=msg
     },
     register(){
       this.$emit('register')
-    },
-    loginHandle() {
-      /*
-      0        CONNECTING        连接尚未建立
-    1        OPEN            WebSocket的链接已经建立
-    2        CLOSING            连接正在关闭
-    3        CLOSED            连接已经关闭或不可用
-      */
-      if (this.$socket.readyState == 1) {
-        var login_data = {
-          action: "login",
-          nickname: this.my_nickname,
-          avatar_id: this.avatar_id
-        };
-        console.log("登录发送的数据：", login_data);
-        this.$socket.send(JSON.stringify(login_data));
-      } else {
-        alert("网络连接失败，请刷新");
-        return false;
-      }
-    },
-    // 改变头像
-    selectThisAvatar(avatar_id) {
-      localStorage.setItem("avatar_id", avatar_id);
-      this.avatar_id = avatar_id;
-      Toast("头像选择成功");
-      this.header_select_box = false;
-    },
-    loadMore() {
-      if (this.header_num_s >= 260) {
-        return false;
-      }
-      this.header_loading = true;
-      setTimeout(() => {
-        for (let i = this.header_num_s + 1; i <= this.header_num_s + 20; i++) {
-          this.header_list.push(i);
-        }
-        this.header_num_s += 20;
-        this.header_loading = false;
-      }, 500);
-    },
-  },
-  mounted() {
-    // 获取随机数
-    this.avatar_id = localStorage.getItem("avatar_id");
-    if (this.avatar_id == null) {
-      // 没有随机数 就生成
-      this.avatar_id = parseInt(Math.random() * 259) + 1;
-      localStorage.setItem("avatar_id", this.avatar_id);
     }
   }
 };
