@@ -36,8 +36,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         info: {
         },
       },
-      chat_list: [
-      ]
+      chat_list: JSON.parse(localStorage.getItem('chat_list') || '[]')
     },
     mutations: {
       add_online_user(state, user) {
@@ -45,6 +44,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
       },
       add_chat_msg(state, chat_msg) {
         state.chat_list.push(chat_msg)
+        localStorage.setItem('chat_list', JSON.stringify(state.chat_list))
       },
       set_myself_info(state, myself_info) {
         state.myself.info = myself_info
@@ -142,7 +142,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           // 解析表情
           getMsg.message.message = Tools.convert(getMsg.message.message)
         }
-        if (getMsg.message.message.indexOf('@'+store.state.myself.info.nickname) !== -1) {
+        if (getMsg.message.message.indexOf('@' + store.state.myself.info.nickname) !== -1) {
           getMsg.message['at_you'] = true;
         }
         if ('at_you' in getMsg.message) {
@@ -156,6 +156,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   socket.onclose = function (event) {
     console.log('socket.onclose 连接关闭,退出登录')
     store.commit("set_is_login", false);
+    localStorage.removeItem('chat_list')
   }
 
   socket.onerror = function (event, error) {
