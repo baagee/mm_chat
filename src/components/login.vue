@@ -47,7 +47,6 @@ export default {
         email: this.my_email,
         password: this.my_password
       };
-
       this.$axios
         .post("/user/login", this.$qs.stringify(sendData))
         .then(response => {
@@ -55,8 +54,7 @@ export default {
           if (response.data.err_no > 0) {
             this.alertMsg(response.data.err_msg);
           } else if (response.data.err_no == 0) {
-            // 登录成功set_myself_info
-            this.$store.commit('set_is_login',true)
+            // 登录成功
             this.$store.commit('open_socket',response.data.data)
           } else {
           }

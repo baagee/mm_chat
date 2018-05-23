@@ -30,7 +30,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   const store = new Vuex.Store({
     state: {
       is_login: false,
-      socket:null,
+      socket: null,
       friends: [
         {
           nickname: '哈哈哈',
@@ -85,7 +85,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               time: '09:12:23',
               user_id: 1,
               message: '合适的过得好不好山东话啥的格式',
-              self:false
+              self: false
             },
             {
               'nickname': '我自己',
@@ -93,7 +93,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               time: '09:12:23',
               user_id: 1,
               message: '合适的过得好不好山东话啥的格式',
-              self:true              
+              self: true
             },
             {
               'nickname': '嘿嘿嘿',
@@ -101,7 +101,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               time: '09:12:23',
               user_id: 2,
               message: '合适的过得好不好山东话啥的格式',
-              self:false                            
+              self: false
             },
           ]
         },
@@ -113,7 +113,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               time: '09:12:23',
               user_id: 1,
               message: '合适的过得好不好山东话啥的格式',
-              self:false
+              self: false
             },
             {
               nickname: '我自己',
@@ -121,7 +121,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               time: '09:19:23',
               user_id: 14,
               message: 'hasdjghsdf发生的风格说得很好士大夫就更好了开始',
-              self:true
+              self: true
             }
           ],
           user_166: [
@@ -131,7 +131,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               time: '09:12:23',
               user_id: 12,
               message: '合适的过得好不好山东话啥的格式',
-              self:false
+              self: false
             }
           ],
         }
@@ -171,10 +171,10 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         state.is_login = is_login
       },
       // 登录后连接websocket服务器
-      open_socket(state,user_info){
+      open_socket(state, user_info) {
         var ws = 'ws://' + HOST + ':8989'
         var socket = new WebSocket(ws)
-        state.socket=socket
+        state.socket = socket
         socket.onopen = function (event) {
           var interval = setInterval(function () {
             // 定时发送心跳包
@@ -186,9 +186,9 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
               clearInterval(interval)
             }
           }, 8000)
-          console.log('连接成功',user_info)
+          console.log('连接成功', user_info)
           if (socket.readyState == 1) {
-            user_info.action='login';
+            user_info.action = 'login';
             console.log("登录发送的数据：", user_info);
             socket.send(JSON.stringify(user_info));
           } else {
@@ -198,9 +198,22 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         }
 
         socket.onmessage = function (event) {
-            console.log('获取到信息')
-            var getMsg = JSON.parse(event.data)
-            console.log(getMsg)
+          console.log('获取到信息')
+          var getMsg = JSON.parse(event.data)
+          console.log(getMsg)
+          if (getMsg.action == 'login' && store.state.is_login == false) {
+            // 登录的消息
+            state.myself.info=getMsg.myself
+            state.is_login=true
+            // var online_users = getMsg.online_users;
+            // var user = {};
+            // online_users.forEach(user => {
+            //   user = JSON.parse(user);
+            //   // store.commit("add_online_user", user);
+            // });
+            // store.commit("set_is_login", true);
+            // store.commit("set_myself_info", getMsg.myself);
+          }
         }
       }
     }

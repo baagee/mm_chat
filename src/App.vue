@@ -24,7 +24,7 @@
 
 <mu-appbar title="秋名山-请不要酒后开车" v-if="is_login">
   <span slot="right" style="margin-right:10px">{{myself.info.nickname}}</span>
-      <mu-avatar :src="'/static/assets/avatar/1 ('+myself.info.avatar_id+').jpg'" slot="right" style="cursor:pointer" @click='showPersonalPage(myself.info.user_id,false)'/>
+      <mu-avatar :src="myself.info.avatar" slot="right" style="cursor:pointer" @click='showPersonalPage(myself.info.user_id,false)'/>
 
   <mu-icon-menu slot="right" icon="more_vert" :anchorOrigin="{horizontal: 'right', vertical: 'top'}"
       :targetOrigin="{horizontal: 'right', vertical: 'top'}">
@@ -637,8 +637,8 @@ export default {
 .mu-dialog {
   overflow-y: auto;
   max-height: 80%;
-  /* max-width: 75%;
-  width: auto; */
+  max-width: 75%;
+  width: auto;
 }
 .one_header {
   border: 1px solid #c6c6c6;
