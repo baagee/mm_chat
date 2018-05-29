@@ -145,7 +145,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         if (getMsg.message.message.indexOf('@' + store.state.myself.info.nickname) !== -1) {
           getMsg.message['at_you'] = true;
         }
-        if ('at_you' in getMsg.message) {
+        if ('at_you' in getMsg.message && getMsg.message.self==false) {
           Tools.notice(getMsg.message.nickname + ' 给你发了一条消息，注意查看哦^_^', '/static/assets/avatar/1 (' + getMsg.message.avatar_id + ').jpg');
         }
         store.commit("add_chat_msg", getMsg.message);

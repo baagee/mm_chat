@@ -67,7 +67,6 @@
     overflow-y: auto;
         background-color: #f1f1f1;
     border: 1px solid #f1f1f1;height:100%;">
-    
 
     <mu-list-item :disableRipple="true" v-for="(chat,index) in chat_list" :key="index">
         <mu-avatar :src="'/static/assets/avatar/1 ('+chat.avatar_id+').jpg'" :slot="chat.self ? 'rightAvatar':'leftAvatar'" />
@@ -142,7 +141,7 @@ import { Toast } from "mint-ui";
 
 import Helper from "./components/help";
 import Login from "./components/login";
-import Alert from './components/alert';
+import Alert from "./components/alert";
 
 export default {
   name: "App",
@@ -401,6 +400,28 @@ export default {
 </script>
 
 <style>
+/*滚动条 start*/
+::-webkit-scrollbar {
+  width: 10px;
+  height: 4px;
+  background-color: #f5f5f5;
+}
+/*定义滚动条轨道 内阴影+圆角*/
+::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background: #fff;
+}
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color:rgb(204, 204, 204);
+}
+::-webkit-scrollbar-thumb:hover {
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: rgb(204, 204, 204);
+}
 #app {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
