@@ -33,7 +33,7 @@
 </mu-appbar>
 
 
-<mu-row gutter>
+<mu-row gutter id="dropbox">
     <mu-col width="100" tablet="40" desktop="30"  style="position: absolute;height: 100%;padding-bottom: 105px;">
       <div style="width:100%">
         <input type="text" v-model="search_keywoyds" placeholder="搜索在线用户" style="
@@ -385,7 +385,6 @@ export default {
             reader.onload = event => {
               // event.target.result 即为图片的Base64编码字符串
               var base64_str = event.target.result;
-              //可以在这里写上传逻辑 直接将base64编码的字符串上传（可以尝试传入blob对象，看看后台程序能否解析）
               this.base64_img = base64_str;
               this.show_send_img_confirm = true;
               // this.uploadBase64Image(base64_str);
@@ -395,6 +394,41 @@ export default {
         }
       }
     });
+    // 拖拽上传
+    var dropbox = document.getElementById("dropbox");
+    dropbox.addEventListener(
+      "dragenter",
+      function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+      },
+      false
+    );
+    dropbox.addEventListener(
+      "dragover",
+      function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+      },
+      false
+    );
+    dropbox.addEventListener(
+      "drop",
+      e => {
+        e.stopPropagation();
+        e.preventDefault();
+        var file = e.dataTransfer.files[0];
+          console.log(file)
+          var fr = new FileReader();
+          fr.readAsDataURL(file);
+          fr.onload = e => {
+            var base64_str = e.target.result;
+            this.base64_img = base64_str;
+            this.show_send_img_confirm = true;
+          };
+      },
+      false
+    );
   }
 };
 </script>
@@ -415,7 +449,7 @@ export default {
 ::-webkit-scrollbar-thumb {
   border-radius: 3px;
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color:rgb(204, 204, 204);
+  background-color: rgb(204, 204, 204);
 }
 ::-webkit-scrollbar-thumb:hover {
   border-radius: 3px;
