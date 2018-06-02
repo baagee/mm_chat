@@ -160,8 +160,8 @@ export default {
       show_help: false,
       show_send_img_confirm: false,
       base64_img: "",
-      progress:0,
-      uploading:false
+      progress: 0,
+      uploading: false
     };
   },
   components: {
@@ -198,19 +198,27 @@ export default {
         "'\">";
       return tag;
     },
+    progressHide(progress){
+      this.progress = progress;
+      this.uploading = false;
+    },
     uploadImageHandle(param, config) {
-      Toast('开始上传发送');
-      this.uploading=true
-      config.onUploadProgress=(e)=>{
-        this.progress = (e.loaded / e.total * 100 | 0)
-        // console.log(this.progress)
+      Toast("开始上传发送");
+      this.uploading = true;
+      config.onUploadProgress = e => {
+        var progress = (e.loaded / e.total * 100) | 0;
+        if (progress < 90) {
+          this.progress = progress;
+        } else {
+          this.progress = 90;
+        }
       };
       this.$axios
         .post("/upload.php", param, config)
         .then(response => {
           console.log(response);
           if (response.data.res == true) {
-            // Indicator.close();
+            this.progress = 100;
             // 上传成功 发送socket
             for (var nickname in this.at_map) {
               if (this.message.indexOf(nickname) !== -1) {
@@ -230,14 +238,15 @@ export default {
             this.$socket.send(JSON.stringify(send));
             this.message = "";
             this.to = [];
-            this.progress=0
-            this.uploading=false
+            setTimeout(()=>{
+              this.progress=0
+              this.uploading = false;
+            },600)
           } else {
-            // Indicator.close();
             this.alert_open = true;
             this.alert_msg = response.data.err_msg;
-            this.progress=0
-            this.uploading=false
+            this.progress = 0;
+            this.uploading = false;
           }
         })
         .catch(error => {
@@ -427,7 +436,7 @@ export default {
         e.stopPropagation();
         e.preventDefault();
         var file = e.dataTransfer.files[0];
-          console.log(file)
+        if (file != undefined) {
           var fr = new FileReader();
           fr.readAsDataURL(file);
           fr.onload = e => {
@@ -435,6 +444,7 @@ export default {
             this.base64_img = base64_str;
             this.show_send_img_confirm = true;
           };
+        }
       },
       false
     );
