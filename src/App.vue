@@ -80,6 +80,7 @@
         </span>
       </mu-list-item>
       </div>
+      <mu-linear-progress v-if="uploading" mode="determinate"  :value="progress"></mu-linear-progress>
 <div class="message_input" style="width: 100%;position: absolute;
     bottom: 4px;">
     <!-- emoji -->
@@ -158,7 +159,9 @@ export default {
       big_img: "",
       show_help: false,
       show_send_img_confirm: false,
-      base64_img: ""
+      base64_img: "",
+      progress:0,
+      uploading:false
     };
   },
   components: {
@@ -196,16 +199,18 @@ export default {
       return tag;
     },
     uploadImageHandle(param, config) {
-      Indicator.open({
-        text: "上传中...",
-        spinnerType: "fading-circle"
-      });
+      Toast('开始上传发送');
+      this.uploading=true
+      config.onUploadProgress=(e)=>{
+        this.progress = (e.loaded / e.total * 100 | 0)
+        // console.log(this.progress)
+      };
       this.$axios
         .post("/upload.php", param, config)
         .then(response => {
           console.log(response);
           if (response.data.res == true) {
-            Indicator.close();
+            // Indicator.close();
             // 上传成功 发送socket
             for (var nickname in this.at_map) {
               if (this.message.indexOf(nickname) !== -1) {
@@ -225,10 +230,14 @@ export default {
             this.$socket.send(JSON.stringify(send));
             this.message = "";
             this.to = [];
+            this.progress=0
+            this.uploading=false
           } else {
-            Indicator.close();
+            // Indicator.close();
             this.alert_open = true;
             this.alert_msg = response.data.err_msg;
+            this.progress=0
+            this.uploading=false
           }
         })
         .catch(error => {
