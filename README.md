@@ -40,3 +40,7 @@ $config = array(
 Bucket: "ssss-1234123",//改成你自己的
 Region: "ap-beijing"//改成你自己的
 ```
+- 在main.js里面配置你的服务器地址:
+```
+const HOST = '192.168.117.142'
+```
