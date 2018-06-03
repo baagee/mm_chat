@@ -1,8 +1,9 @@
 <template>
 <div class="login_box" >
     <alert :alert_open="alert_open" :alert_msg="alert_msg" @closeAlert='alert_open=false'></alert>
-<div style="padding-top:8%;">
-  <h1 style='color:#7e57c2'>秋名山-入口处</h1>
+<div style="padding-top:5%;">
+  <!-- <h1 style='color:#7e57c2'>秋名山-入口处</h1> -->
+  <img src="/static/assets/logo.png" width="330px">
   <div style="
   height: 200px;  
   ">
@@ -23,7 +24,7 @@
   </div>
 </div>
 
-<div style="margin-top:3%">
+<div style="margin-top:2%">
   <mu-text-field label="输入昵称" labelFloat v-model="my_nickname" @keyup.native.enter="login()"/>
   <br>
   <mu-raised-button label="开始聊天" class="demo-raised-button" primary @click="login()"/>

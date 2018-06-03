@@ -23,7 +23,7 @@ if (!isset($_SESSION['tempKeysCache'])) {
         'expiredTime' => 0
     );
 }
-// obj 转 query string
+
 function json2str($obj) {
     ksort($obj);
     $arr = array();
