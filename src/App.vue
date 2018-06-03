@@ -151,7 +151,7 @@ export default {
   name: "App",
   data() {
     return {
-      acceptImgExt:['jpeg','png','jpg','gif'],
+      acceptImgExt: ["jpeg", "png", "jpg", "gif"],
       message: "",
       at_map: {},
       to: [],
@@ -167,8 +167,8 @@ export default {
       progress: 0,
       uploading: false,
       cos: null,
-      Bucket: "chat-room-1256151484",//改成你自己的
-      Region: "ap-beijing"//改成你自己的
+      Bucket: "chat-room-1256151484", //改成你自己的
+      Region: "ap-beijing" //改成你自己的
     };
   },
   components: {
@@ -289,7 +289,7 @@ export default {
                   // console.log(data.Location);
                   this.publishImage(data.Location);
                 } else {
-                  this.alert("发送图片未知原因失败")
+                  this.alert("发送图片未知原因失败");
                   console.log(err);
                 }
               }
@@ -305,10 +305,10 @@ export default {
       var ext = file.type
         .substring(file.type.lastIndexOf("/") + 1)
         .toLowerCase();
-        if(this.acceptImgExt.indexOf(ext)==-1){
-          this.alert('不支持发送'+ext+'格式的文件');
-          return false;
-        }
+      if (this.acceptImgExt.indexOf(ext) == -1) {
+        this.alert("不支持发送" + ext + "格式的文件");
+        return false;
+      }
       browserMD5File(file, (err, md5) => {
         // 文件名用md5区分唯一性。
         console.log(err);
@@ -469,8 +469,8 @@ export default {
               var arr = base64_str.split(","),
                 mime = arr[0].match(/:(.*?);/)[1],
                 ext = mime.substring(mime.lastIndexOf("/") + 1).toLowerCase();
-              if(this.acceptImgExt.indexOf(ext)==-1){
-                this.alert('不支持发送'+ext+'格式的文件');
+              if (this.acceptImgExt.indexOf(ext) == -1) {
+                this.alert("不支持发送" + ext + "格式的文件");
                 return false;
               }
               this.base64_img = base64_str;
@@ -513,8 +513,8 @@ export default {
             var arr = this.base64_img.split(","),
               mime = arr[0].match(/:(.*?);/)[1],
               ext = mime.substring(mime.lastIndexOf("/") + 1).toLowerCase();
-            if(this.acceptImgExt.indexOf(ext)==-1){
-              this.alert('不支持发送'+ext+'格式的文件');
+            if (this.acceptImgExt.indexOf(ext) == -1) {
+              this.alert("不支持发送" + ext + "格式的文件");
               return false;
             }
             this.show_send_img_confirm = true;
@@ -540,7 +540,7 @@ export default {
             callback(response.data);
           })
           .catch(e => {
-            this.alert("发送图片功能暂时不能使用")
+            this.alert("发送图片功能暂时不能使用");
             console.log(e);
           });
       },
@@ -629,8 +629,8 @@ export default {
 .mu-dialog {
   overflow-y: auto;
   max-height: 80%;
-  max-width: 75%;
-  width: auto;
+  max-width: 75% !important;
+  width: auto !important;
 }
 .one_header {
   border: 1px solid #c6c6c6;
