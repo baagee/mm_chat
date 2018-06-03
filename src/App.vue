@@ -165,7 +165,7 @@ export default {
       show_send_img_confirm: false,
       base64_img: "",
       progress: 0,
-      uploading: true,
+      uploading: false,
       cos: null,
       Bucket: "chat-room-1256151484",//改成你自己的
       Region: "ap-beijing"//改成你自己的
@@ -271,7 +271,7 @@ export default {
                 StorageClass: "STANDARD",
                 Body: file, // 上传文件对象
                 onProgress: progressData => {
-                  console.log(progressData);
+                  console.log(JSON.stringify(progressData));
                   // {"loaded":27151,"total":27151,"speed":88152.6,"percent":1}
                   this.progress = progressData.percent * 100;
                 }
@@ -553,6 +553,7 @@ export default {
 <style>
 /*滚动条 start*/
 ::-webkit-scrollbar {
+  /* display: none; */
   width: 10px;
   height: 4px;
   background-color: #f5f5f5;

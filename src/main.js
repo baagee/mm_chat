@@ -91,7 +91,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   socket.onmessage = function (event) {
     console.log('获取到信息')
     var getMsg = JSON.parse(event.data)
-    console.log(getMsg)
+    console.log(JSON.stringify(getMsg))
     if (getMsg.action == 'login' && store.state.is_login == false) {
       // 登录的消息
       var online_users = getMsg.online_users;
