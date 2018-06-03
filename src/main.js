@@ -154,9 +154,12 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
     // todo 重连
   }
   socket.onclose = function (event) {
-    console.log('socket.onclose 连接关闭,退出登录')
+    console.log('socket.onclose 连接关闭')
     store.commit("set_is_login", false);
-    localStorage.removeItem('chat_list')
+    var nickname=localStorage.getItem('my_nickname');
+    if(nickname==null){
+      localStorage.removeItem('chat_list')
+    }
   }
 
   socket.onerror = function (event, error) {
