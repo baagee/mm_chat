@@ -143,6 +143,8 @@ import { Toast } from "mint-ui";
 import Helper from "./components/help";
 import Login from "./components/login";
 import Alert from "./components/alert";
+import COS from "cos-js-sdk-v5";
+import browserMD5File from "browser-md5-file";
 
 export default {
   name: "App",
@@ -161,7 +163,10 @@ export default {
       show_send_img_confirm: false,
       base64_img: "",
       progress: 0,
-      uploading: false
+      uploading: false,
+      cos: null,
+      Bucket: "chat-room-1256151484",
+      Region: "ap-beijing"
     };
   },
   components: {
@@ -172,6 +177,10 @@ export default {
   methods: {
     closeHelper() {
       this.show_help = false;
+    },
+    alert(msg) {
+      this.alert_open = true;
+      this.alert_msg = msg;
     },
     // 显示大图
     showBigImg(img_path) {
@@ -198,82 +207,113 @@ export default {
         "'\">";
       return tag;
     },
-    progressHide(progress){
-      this.progress = progress;
-      this.uploading = false;
+    // 发送图片
+    publishImage(imgUrl) {
+      // 上传成功 发送socket
+      for (var nickname in this.at_map) {
+        if (this.message.indexOf(nickname) !== -1) {
+          this.to.push(this.at_map[nickname]);
+        }
+      }
+      var send = {
+        action: "chat",
+        nickname: this.myself.info.nickname,
+        message: this.message,
+        avatar_id: this.myself.info.avatar_id,
+        // 如果to 目标用户数组为空，则在线所有人都能接受
+        to: this.uniqueArray(this.to)
+      };
+      this.$socket.send(JSON.stringify(send));
+      send.message = "[img]:" + imgUrl;
+      this.$socket.send(JSON.stringify(send));
+      this.message = "";
+      this.to = [];
     },
-    uploadImageHandle(param, config) {
+    uploadImageHandle(file, filename) {
       Toast("开始上传发送");
       this.uploading = true;
-      config.onUploadProgress = e => {
-        var progress = (e.loaded / e.total * 100) | 0;
-        if (progress < 90) {
-          this.progress = progress;
-        } else {
-          this.progress = 90;
-        }
-      };
-      this.$axios
-        .post("/upload.php", param, config)
-        .then(response => {
-          console.log(response);
-          if (response.data.res == true) {
+      // 上传前检测文件是否存在，不存在就上传
+      this.cos.getObject(
+        {
+          Bucket: this.Bucket /* 必须 */,
+          Region: this.Region /* 必须 */,
+          Key: "/images/" + filename,
+          Range: "bytes=1-3" /* 非必须 */
+        },
+        (err, data) => {
+          if (err == null && data.statusCode > 200 && data.statusCode < 300) {
+            // 文件已经上传过了。
+            console.log("文件已经上传过了");
             this.progress = 100;
-            // 上传成功 发送socket
-            for (var nickname in this.at_map) {
-              if (this.message.indexOf(nickname) !== -1) {
-                this.to.push(this.at_map[nickname]);
-              }
-            }
-            var send = {
-              action: "chat",
-              nickname: this.myself.info.nickname,
-              message: this.message,
-              avatar_id: this.myself.info.avatar_id,
-              // 如果to 目标用户数组为空，则在线所有人都能接受
-              to: this.uniqueArray(this.to)
-            };
-            this.$socket.send(JSON.stringify(send));
-            send.message = "[img]:" + response.data.img_path;
-            this.$socket.send(JSON.stringify(send));
-            this.message = "";
-            this.to = [];
-            setTimeout(()=>{
-              this.progress=0
-              this.uploading = false;
-            },600)
-          } else {
-            this.alert_open = true;
-            this.alert_msg = response.data.err_msg;
+            // 直接返回路径
+            console.log(data);
+            var imgUrl =
+              "https://" +
+              this.Bucket +
+              ".cos." +
+              this.Region +
+              ".myqcloud.com/images/" +
+              filename;
+            console.log(imgUrl);
+            this.publishImage(imgUrl);
+            this.uploading = false; //隐藏进度条
             this.progress = 0;
-            this.uploading = false;
+          } else {
+            console.log("文件没上传过, 开始上传");
+            // 开始上传
+            this.cos.putObject(
+              {
+                Bucket: this.Bucket /* 必须 */,
+                Region: this.Region /* 必须 */,
+                Key: "/images/" + filename /* 必须 */,
+                StorageClass: "STANDARD",
+                Body: file, // 上传文件对象
+                onProgress: progressData => {
+                  console.log(progressData);
+                  // {"loaded":27151,"total":27151,"speed":88152.6,"percent":1}
+                  this.progress = progressData.percent * 100;
+                }
+              },
+              (err, data) => {
+                console.log(data);
+                this.uploading = false; //隐藏进度条
+                this.progress = 0; //重置为0
+                if (
+                  err == null &&
+                  data.statusCode >= 200 &&
+                  data.statusCode < 300
+                ) {
+                  // success
+                  // console.log(data.Location);
+                  this.publishImage(data.Location);
+                } else {
+                  this.alert("发送图片未知原因失败")
+                  console.log(err);
+                }
+              }
+            );
           }
-        })
-        .catch(error => {
-          Indicator.close();
-          console.log(error);
-          alert("抱歉，出现未知错误");
-        });
+        }
+      );
     },
     // 上传图片
     uploadImage(e) {
       let file = e.target.files[0];
-      let param = new FormData(); // 创建form对象
-      param.append("image", file, file.name); // 通过append向form对象添加数据
-      console.log(param.get("file")); // FormData私有类对象，访问不到，可以通过get判断值是否传进去
-      let config = {
-        headers: { "Content-Type": "multipart/form-data" }
-      };
-
-      var that = this;
-      // var file = e.target.files[0];
-      var imgSize = file.size / 1024;
-      if (imgSize > 1024 * 5) {
-        this.alert_open = true;
-        this.alert_msg = "请不要上传大于5Mb的图片";
-      } else {
-        this.uploadImageHandle(param, config);
-      }
+      console.log(file);
+      var ext = file.type
+        .substring(file.type.lastIndexOf("/") + 1)
+        .toLowerCase();
+      browserMD5File(file, (err, md5) => {
+        // 文件名用md5区分唯一性。
+        console.log(err);
+        if (err != null) {
+          console.log("出错：error:" + err);
+        } else {
+          var filename = md5 + "." + ext;
+          console.log("filename=" + filename);
+          this.uploadImageHandle(file, filename);
+        }
+      });
     },
     // 选择表情
     addEmoji(key) {
@@ -327,7 +367,7 @@ export default {
         this.to = [];
         this.at_map = {};
       } else {
-        alert("网络连接失败，请刷新");
+        this.alert("网络连接失败，请刷新");
         return false;
       }
     },
@@ -358,13 +398,30 @@ export default {
     },
     // 粘贴上传base64图片sendBase64Image
     sendBase64Image() {
-      var param = {
-        img: this.base64_img,
-        "submission-type": "paste"
-      };
       this.show_send_img_confirm = false;
+      var arr = this.base64_img.split(","),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]),
+        n = bstr.length,
+        ext = mime.substring(mime.lastIndexOf("/") + 1).toLowerCase(),
+        u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      var filename = "tmp." + ext;
+      var file_s = new File([u8arr], filename, { type: mime });
+      browserMD5File(file_s, (err, md5) => {
+        // 文件名用md5区分唯一性。
+        console.log(err);
+        if (err != null) {
+          console.log("出错：error:" + err);
+        } else {
+          filename = md5 + "." + ext;
+          console.log("filename=" + filename);
+          this.uploadImageHandle(file_s, filename);
+        }
+      });
       this.base64_img = "";
-      this.uploadImageHandle(this.$qs.stringify(param), {});
     }
   },
   computed: {
@@ -405,7 +462,6 @@ export default {
               var base64_str = event.target.result;
               this.base64_img = base64_str;
               this.show_send_img_confirm = true;
-              // this.uploadBase64Image(base64_str);
             };
             reader.readAsDataURL(blob);
           }
@@ -440,14 +496,36 @@ export default {
           var fr = new FileReader();
           fr.readAsDataURL(file);
           fr.onload = e => {
-            var base64_str = e.target.result;
-            this.base64_img = base64_str;
+            this.base64_img = e.target.result;
             this.show_send_img_confirm = true;
           };
         }
       },
       false
     );
+    // 腾讯对象存储
+    this.cos = new COS({
+      // 必选参数
+      getAuthorization: (options, callback) => {
+        // 异步获取签名
+        this.$axios
+          .get("/auth.php", {
+            params: {
+              method: (options.Method || "get").toLowerCase(),
+              pathname: options.Key
+            }
+          })
+          .then(response => {
+            console.log(response.data);
+            callback(response.data);
+          })
+          .catch(e => {
+            this.alert("发送图片功能暂时不能使用")
+            console.log(e);
+          });
+      },
+      ProgressInterval: 500
+    });
   }
 };
 </script>

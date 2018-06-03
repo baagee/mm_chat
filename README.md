@@ -21,15 +21,18 @@ npm run build --report
 
 - 需要安装redis，安装php_redis扩展，安装swoole扩展
 - 运行前请配置chat_server/run.php里面的图灵机器人apiKey(tuling_robot_apikey)
-- 配置upload_api/public/upload.php里面的腾讯对象存储参数，如下：
+- 配置upload_api/public/auth.php里面的腾讯对象存储参数，如下：
 
 ```php
-$qc_config = array(
-    'app_id' => '',
-    'secret_id' => '',
-    'secret_key' => '',
-    'region' => 'bj',   // bucket所属地域：华北 'tj' 华东 'sh' 华南 'gz'
-    'timeout' => 60
+// 配置参数
+$config = array(
+    'Url' => 'https://sts.api.qcloud.com/v2/index.php',
+    'Domain' => 'sts.api.qcloud.com',
+    'Proxy' => '',
+    'SecretId' => '', // 改自己的
+    'SecretKey' => '', // 改自己的
+    'Bucket' => 'ssss-1234123',// 改自己的
+    'Region' => 'ap-beijing',// 改自己的
+    'AllowPrefix' => 'images/*', // 这里改成路径前缀，例子：* 或者 a/*
 );
-$bucket = 'chat-room';
 ```
