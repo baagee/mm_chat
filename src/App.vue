@@ -165,8 +165,8 @@ export default {
       progress: 0,
       uploading: false,
       cos: null,
-      Bucket: "chat-room-1256151484",
-      Region: "ap-beijing"
+      Bucket: "chat-room-1256151484",//改成你自己的
+      Region: "ap-beijing"//改成你自己的
     };
   },
   components: {
