@@ -80,17 +80,18 @@
         </span>
       </mu-list-item>
       </div>
-      <mu-linear-progress v-if="uploading" mode="determinate"  :value="progress"></mu-linear-progress>
+      <mu-linear-progress v-if="uploading" mode="determinate" :size='5' :value="progress"></mu-linear-progress>
 <div class="message_input" style="width: 100%;position: absolute;
     bottom: 4px;">
     <!-- emoji -->
     <div style="
     position: absolute;
     z-index: 100;
-    width: 40%;
-    right: 0px;
+    width: 41%;
+    right: 1px;
+    box-shadow: 0 0 10px #cacaca;
     background-color: #f3f3f3;
-    top: -175px;
+    top: -176px;
     height: 175px;
     overflow-y: auto;
     " v-show="show_emoji">
@@ -150,6 +151,7 @@ export default {
   name: "App",
   data() {
     return {
+      acceptImgExt:['jpeg','png','jpg','gif'],
       message: "",
       at_map: {},
       to: [],
@@ -163,7 +165,7 @@ export default {
       show_send_img_confirm: false,
       base64_img: "",
       progress: 0,
-      uploading: false,
+      uploading: true,
       cos: null,
       Bucket: "chat-room-1256151484",//改成你自己的
       Region: "ap-beijing"//改成你自己的
@@ -303,6 +305,10 @@ export default {
       var ext = file.type
         .substring(file.type.lastIndexOf("/") + 1)
         .toLowerCase();
+        if(this.acceptImgExt.indexOf(ext)==-1){
+          this.alert('不支持发送'+ext+'格式的文件');
+          return false;
+        }
       browserMD5File(file, (err, md5) => {
         // 文件名用md5区分唯一性。
         console.log(err);
@@ -460,6 +466,13 @@ export default {
             reader.onload = event => {
               // event.target.result 即为图片的Base64编码字符串
               var base64_str = event.target.result;
+              var arr = base64_str.split(","),
+                mime = arr[0].match(/:(.*?);/)[1],
+                ext = mime.substring(mime.lastIndexOf("/") + 1).toLowerCase();
+              if(this.acceptImgExt.indexOf(ext)==-1){
+                this.alert('不支持发送'+ext+'格式的文件');
+                return false;
+              }
               this.base64_img = base64_str;
               this.show_send_img_confirm = true;
             };
@@ -497,6 +510,13 @@ export default {
           fr.readAsDataURL(file);
           fr.onload = e => {
             this.base64_img = e.target.result;
+            var arr = this.base64_img.split(","),
+              mime = arr[0].match(/:(.*?);/)[1],
+              ext = mime.substring(mime.lastIndexOf("/") + 1).toLowerCase();
+            if(this.acceptImgExt.indexOf(ext)==-1){
+              this.alert('不支持发送'+ext+'格式的文件');
+              return false;
+            }
             this.show_send_img_confirm = true;
           };
         }
@@ -585,7 +605,7 @@ export default {
   height: 79px;
 }
 .emoji_box {
-  background-color: #f3f3f3;
+  background-color: #fff;
   display: block;
   float: left;
   width: 25px;
@@ -596,7 +616,8 @@ export default {
   border-right: 1px dotted #ccc;
 }
 .emoji_box:hover {
-  background-color: #7e57c2;
+  /* background-color: #7e57c2; */
+  border: 1px solid #7e57c2;
 }
 .mu-text-field::-webkit-scrollbar {
   display: none;
