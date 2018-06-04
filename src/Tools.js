@@ -42,5 +42,10 @@ function _notice(message, icon) {
 
 export default {
     convert: _convert,
-    notice: _notice
+    notice: _notice,
+    conf:{
+        host:'192.168.117.142',//改成你自己的host，不要带http/https
+        bucket: "chat-room-1256151484", //改成你自己的腾讯云bucket
+        region: "ap-beijing" //改成你自己的腾讯云region
+    }
 }

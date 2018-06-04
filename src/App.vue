@@ -166,8 +166,6 @@ export default {
       progress: 0,
       uploading: false,
       cos: null,
-      Bucket: "chat-room-1256151484", //改成你自己的
-      Region: "ap-beijing" //改成你自己的
     };
   },
   components: {
@@ -236,8 +234,8 @@ export default {
       // 上传前检测文件是否存在，不存在就上传
       this.cos.getObject(
         {
-          Bucket: this.Bucket /* 必须 */,
-          Region: this.Region /* 必须 */,
+          Bucket: this.$conf.bucket /* 必须 */,
+          Region: this.$conf.region /* 必须 */,
           Key: "/images/" + filename,
           Range: "bytes=1-3" /* 非必须 */
         },
@@ -250,9 +248,9 @@ export default {
             console.log(data);
             var imgUrl =
               "https://" +
-              this.Bucket +
+              this.$conf.bucket +
               ".cos." +
-              this.Region +
+              this.$conf.region +
               ".myqcloud.com/images/" +
               filename;
             console.log(imgUrl);
@@ -264,8 +262,8 @@ export default {
             // 开始上传
             this.cos.putObject(
               {
-                Bucket: this.Bucket /* 必须 */,
-                Region: this.Region /* 必须 */,
+                Bucket: this.$conf.bucket /* 必须 */,
+                Region: this.$conf.region /* 必须 */,
                 Key: "/images/" + filename /* 必须 */,
                 StorageClass: "STANDARD",
                 Body: file, // 上传文件对象

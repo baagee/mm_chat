@@ -35,12 +35,11 @@ $config = array(
     'AllowPrefix' => 'images/*', // 不需要改
 );
 ```
-- 配置前端App.vue里面的bucket与region:
-```
-Bucket: "ssss-1234123",//改成你自己的
-Region: "ap-beijing"//改成你自己的
-```
-- 在main.js里面配置你的服务器地址:
-```
-const HOST = '192.168.117.142'
+- 修改前端配置,Tools.js:
+```javascript
+conf:{
+    host:'192.168.117.142',//改成你自己的host，不要带http/https
+    bucket: "chat-room-1256151484", //改成你自己的腾讯云bucket
+    region: "ap-beijing" //改成你自己的腾讯云region
+}
 ```
