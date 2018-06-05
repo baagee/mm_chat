@@ -1,7 +1,7 @@
 <template>
     
   <mu-dialog :open="alert_open" title="提示">
-      {{alert_msg}}
+      <span style="color:red;">{{alert_msg}}</span>
     <mu-flat-button label="确定" slot="actions" primary @click="close()"/>
   </mu-dialog>
 </template>

@@ -41,6 +41,7 @@
     height: 35px;
     margin: 3px 0;
     border: 1px solid #f1f1f1;
+    outline-color: rebeccapurple;
     padding-left: 10px;">
       </div>
 
@@ -165,7 +166,7 @@ export default {
       base64_img: "",
       progress: 0,
       uploading: false,
-      cos: null,
+      cos: null
     };
   },
   components: {
@@ -240,12 +241,12 @@ export default {
           Range: "bytes=1-3" /* 非必须 */
         },
         (err, data) => {
+          console.log('检查文件是否上传返回结果：'+JSON.stringify(data));
           if (err == null && data.statusCode > 200 && data.statusCode < 300) {
             // 文件已经上传过了。
             console.log("文件已经上传过了");
             this.progress = 100;
             // 直接返回路径
-            console.log(data);
             var imgUrl =
               "https://" +
               this.$conf.bucket +
@@ -253,7 +254,7 @@ export default {
               this.$conf.region +
               ".myqcloud.com/images/" +
               filename;
-            console.log(imgUrl);
+            console.log('图片地址'+imgUrl);
             this.publishImage(imgUrl);
             this.uploading = false; //隐藏进度条
             this.progress = 0;
@@ -268,13 +269,13 @@ export default {
                 StorageClass: "STANDARD",
                 Body: file, // 上传文件对象
                 onProgress: progressData => {
-                  console.log(JSON.stringify(progressData));
+                  console.log('实时上传状态：'+JSON.stringify(progressData));
                   // {"loaded":27151,"total":27151,"speed":88152.6,"percent":1}
                   this.progress = progressData.percent * 100;
                 }
               },
               (err, data) => {
-                console.log(data);
+                console.log('上传结结果：'+JSON.stringify(data));
                 this.uploading = false; //隐藏进度条
                 this.progress = 0; //重置为0
                 if (
@@ -287,7 +288,7 @@ export default {
                   this.publishImage(data.Location);
                 } else {
                   this.alert("发送图片未知原因失败");
-                  console.log(err);
+                  console.log('上传图片失败'+JSON.stringify(err));
                 }
               }
             );
@@ -298,7 +299,6 @@ export default {
     // 上传图片
     uploadImage(e) {
       let file = e.target.files[0];
-      console.log(file);
       var ext = file.type
         .substring(file.type.lastIndexOf("/") + 1)
         .toLowerCase();
@@ -308,9 +308,9 @@ export default {
       }
       browserMD5File(file, (err, md5) => {
         // 文件名用md5区分唯一性。
-        console.log(err);
         if (err != null) {
-          console.log("出错：error:" + err);
+          console.log("browserMD5File出错：error:");
+          console.log(err)
         } else {
           var filename = md5 + "." + ext;
           console.log("filename=" + filename);
@@ -363,7 +363,7 @@ export default {
         to: this.uniqueArray(this.to)
       };
       if (this.$socket.readyState == 1) {
-        console.log("发送消息：" + send);
+        console.log("发送消息：" + JSON.stringify(send));
         // 发送socket消息
         this.$socket.send(JSON.stringify(send));
         this.message = "";
@@ -415,7 +415,6 @@ export default {
       var file_s = new File([u8arr], filename, { type: mime });
       browserMD5File(file_s, (err, md5) => {
         // 文件名用md5区分唯一性。
-        console.log(err);
         if (err != null) {
           console.log("出错：error:" + err);
         } else {
@@ -533,12 +532,12 @@ export default {
             }
           })
           .then(response => {
-            console.log(response.data);
+            console.log('auth返回：'+JSON.stringify(response.data));
             callback(response.data);
           })
           .catch(e => {
             this.alert("发送图片功能暂时不能使用");
-            console.log(e);
+            console.log('auth返回报错：'+JSON.stringify(e));
           });
       },
       ProgressInterval: 500

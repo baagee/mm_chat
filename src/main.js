@@ -77,7 +77,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
           nickname: my_nickname,
           avatar_id: avatar_id
         };
-        console.log("登录发送的数据：", login_data);
+        console.log("登录发送的数据：" + JSON.stringify(login_data));
         socket.send(JSON.stringify(login_data));
       } else {
         alert("网络连接失败，请刷新");
@@ -87,9 +87,8 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   }
 
   socket.onmessage = function (event) {
-    console.log('获取到信息')
     var getMsg = JSON.parse(event.data)
-    console.log(JSON.stringify(getMsg))
+    console.log('获取到信息:' + JSON.stringify(getMsg))
     if (getMsg.action == 'login' && store.state.is_login == false) {
       // 登录的消息
       var online_users = getMsg.online_users;
@@ -143,7 +142,7 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
         if (getMsg.message.message.indexOf('@' + store.state.myself.info.nickname) !== -1) {
           getMsg.message['at_you'] = true;
         }
-        if ('at_you' in getMsg.message && getMsg.message.self==false) {
+        if ('at_you' in getMsg.message && getMsg.message.self == false) {
           Tools.notice(getMsg.message.nickname + ' 给你发了一条消息，注意查看哦^_^', '/static/assets/avatar/1 (' + getMsg.message.avatar_id + ').jpg');
         }
         store.commit("add_chat_msg", getMsg.message);
@@ -154,8 +153,8 @@ if (navigator.userAgent.match(/(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobil
   socket.onclose = function (event) {
     console.log('socket.onclose 连接关闭')
     store.commit("set_is_login", false);
-    var nickname=localStorage.getItem('my_nickname');
-    if(nickname==null){
+    var nickname = localStorage.getItem('my_nickname');
+    if (nickname == null) {
       localStorage.removeItem('chat_list')
     }
   }

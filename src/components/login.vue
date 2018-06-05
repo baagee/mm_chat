@@ -20,7 +20,7 @@
 </span>
   <mu-infinite-scroll :scroller="scroller" :loadingText="''" :loading="header_loading" @load="loadMore"/>
   </div>
-        <img @click="header_select_box=true" v-show="!header_select_box" :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="140px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;" title="点击我选择头像哦">
+        <img @click="header_select_box=true" v-show="!header_select_box" :src="'/static/assets/avatar/1 ('+avatar_id+').jpg'" width="100px;" style="margin-top: 30px;border-radius:50%;cursor:pointer;border: 1px solid #ccc;" title="点击我选择头像哦">
   </div>
 </div>
 
@@ -59,7 +59,6 @@ export default {
   methods: {
     login() {
       var len = this.my_nickname.replace(/[\u0391-\uFFE5]/g, "aa").length;
-      console.log(len);
       if (len > 0 && len <= 14) {
         // 昵称合法，保存本地缓存
         localStorage.setItem("my_nickname", this.my_nickname);
@@ -84,7 +83,7 @@ export default {
           nickname: this.my_nickname,
           avatar_id: this.avatar_id
         };
-        console.log("登录发送的数据：", login_data);
+        console.log("登录发送的数据："+JSON.stringify(login_data));
         this.$socket.send(JSON.stringify(login_data));
       } else {
         alert("网络连接失败，请刷新");
