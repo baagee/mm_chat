@@ -10,7 +10,7 @@
     "build": "node build/build.js"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "browser-md5-file": "^1.0.0",
     "cos-js-sdk-v5": "^0.4.7",
     "mint-ui": "^2.2.13",
